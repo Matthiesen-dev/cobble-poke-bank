@@ -21,6 +21,6 @@ public final class MainConfig {
 
     public static class PermissionLevels {
         @SerializedName("command.pokebank")
-        public int COMMAND_POKEBANK_PERMISSION_LEVEL = PermissionLevel.NONE.getLevel();
+        public int COMMAND_POKEBANK_PERMISSION_LEVEL = PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS.getLevel();
     }
 }
