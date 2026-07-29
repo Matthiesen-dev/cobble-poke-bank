@@ -19,7 +19,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "dev.matthiesen.template_cobblemon_sidemod.fabric.CobblePokeBankFabric"
+      "dev.matthiesen.cobble_poke_bank.fabric.CobblePokeBankFabric"
     ]
   },
   "depends": {
