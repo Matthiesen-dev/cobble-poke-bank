@@ -20,9 +20,9 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
     public static @Token final String METRICS_TOKEN = "e2cc0b9381f499678f05477461507d81";
     public static final CobblePokeBankCommon INSTANCE = new CobblePokeBankCommon();
 
-    public static final ConfigManager<DatabaseConfig> DATABASE_CONFIG_MANAGER =
+    private static final ConfigManager<DatabaseConfig> DATABASE_CONFIG_MANAGER =
             INSTANCE.createConfigManager(DatabaseConfig.class, "database");
-    public static final ConfigManager<MainConfig> CONFIG_MANAGER =
+    private static final ConfigManager<MainConfig> CONFIG_MANAGER =
             INSTANCE.createConfigManager(MainConfig.class, "config");
 
     private Database database;
