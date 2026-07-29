@@ -3,6 +3,7 @@
 <div>
   <img src="https://mods.matthiesen.dev/badges/matthiesenCore.svg" alt="Matthiesen Core">
   <img src="https://mods.matthiesen.dev/badges/cobblemon.svg" alt="Cobblemon">
+  <img src="https://mods.matthiesen.dev/badges/gooeylibs.svg" alt="GooeyLibs">
 </div>
 
 Cobblemon pokemon database backed storage, usable during world resets, or for multi-server setups where you can store and transfer pokemon between servers.
@@ -11,6 +12,14 @@ Cobblemon pokemon database backed storage, usable during world resets, or for mu
 
 - [Matthiesen Core](https://modrinth.com/mod/matthiesen-core)
 - [Cobblemon](https://modrinth.com/mod/cobblemon)
+- [GooeyLibs](https://modrinth.com/mod/gooeylibs)
+
+## Usage
+
+- Run `/pokebank` in-game to open the bank menu.
+- Configure player bank capacity in `config/cobble_poke_bank/config.json` (`bank.maxSlots`):
+  - `<= 0` = unlimited
+  - `> 0` = fixed slot cap
 
 ## Docs
 

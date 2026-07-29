@@ -21,12 +21,12 @@ public final class PokemonBankService {
         repository.createIndexes();
     }
 
-    public void insertOrUpdateBankEntry(String user_uuid, String pokemon_uuid, JsonObject pokemon_json_data) {
-        repository.insertOrUpdateBankEntry(user_uuid, pokemon_uuid, pokemon_json_data);
+    public boolean insertOrUpdateBankEntry(String user_uuid, String pokemon_uuid, JsonObject pokemon_json_data) {
+        return repository.insertOrUpdateBankEntry(user_uuid, pokemon_uuid, pokemon_json_data);
     }
 
-    public void deleteBankEntry(String user_uuid, String pokemon_uuid) {
-        repository.deleteBankEntry(user_uuid, pokemon_uuid);
+    public boolean deleteBankEntry(String user_uuid, String pokemon_uuid) {
+        return repository.deleteBankEntry(user_uuid, pokemon_uuid);
     }
 
     public Map<Integer, PokemonBankRepository.PokemonBankEntry> getUserBank(String user_uuid) {
