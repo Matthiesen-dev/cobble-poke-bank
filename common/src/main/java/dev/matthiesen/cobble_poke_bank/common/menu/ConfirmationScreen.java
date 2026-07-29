@@ -10,15 +10,19 @@ import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.google.gson.JsonObject;
 import dev.matthiesen.cobble_poke_bank.common.CobblePokeBankCommon;
+import dev.matthiesen.cobble_poke_bank.common.config.MainConfig;
 import dev.matthiesen.cobble_poke_bank.common.database.repository.PokemonBankRepository;
 import dev.matthiesen.cobble_poke_bank.common.database.service.DatabaseServices;
 import dev.matthiesen.cobble_poke_bank.common.utility.MenuUtilities;
+import dev.matthiesen.cobble_poke_bank.common.utility.ModTags;
 import dev.matthiesen.cobble_poke_bank.common.utility.PokemonUtility;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -105,6 +109,11 @@ public final class ConfirmationScreen {
             player.displayClientMessage(Component.literal("[CobblePokeBank] Pokemon is no longer in your PC."), false);
             return;
         }
+        String heldItemValidationMessage = validateHeldItemForTransfer(pokemon);
+        if (heldItemValidationMessage != null) {
+            player.displayClientMessage(Component.literal(heldItemValidationMessage), false);
+            return;
+        }
 
         JsonObject jsonObject = PokemonUtility.pokemonToJson(pokemon, player.level().registryAccess());
         String userUUID = player.getUUID().toString();
@@ -152,6 +161,22 @@ public final class ConfirmationScreen {
             player.displayClientMessage(Component.literal("[CobblePokeBank] Pokemon is no longer in your bank."), false);
             return;
         }
+
+        Pokemon pokemon;
+        try {
+            pokemon = PokemonUtility.pokemonFromJson(bankEntry.pokemon_json_data(), player.level().registryAccess());
+        } catch (Exception exception) {
+            CobblePokeBankCommon.INSTANCE.createErrorLog("Failed to deserialize bank Pokemon entry", exception);
+            player.displayClientMessage(Component.literal("[CobblePokeBank] Failed to read Pokemon data."), false);
+            return;
+        }
+
+        String heldItemValidationMessage = validateHeldItemForTransfer(pokemon);
+        if (heldItemValidationMessage != null) {
+            player.displayClientMessage(Component.literal(heldItemValidationMessage), false);
+            return;
+        }
+
         String userUUID = player.getUUID().toString();
         String pokemonUUIDString = bankEntry.pokemon_uuid().toString();
 
@@ -165,20 +190,6 @@ public final class ConfirmationScreen {
 
                     if (!deleted) {
                         player.displayClientMessage(Component.literal("[CobblePokeBank] Pokemon is no longer in your bank."), false);
-                        return;
-                    }
-
-                    Pokemon pokemon;
-                    try {
-                        pokemon = PokemonUtility.pokemonFromJson(bankEntry.pokemon_json_data(), player.level().registryAccess());
-                    } catch (Exception exception) {
-                        CobblePokeBankCommon.INSTANCE.createErrorLog("Failed to deserialize bank Pokemon entry", exception);
-                        DatabaseServices.ASYNC_POKE_BANK.insertOrUpdateBankEntry(
-                                userUUID,
-                                pokemonUUIDString,
-                                bankEntry.pokemon_json_data()
-                        );
-                        player.displayClientMessage(Component.literal("[CobblePokeBank] Failed to read Pokemon data."), false);
                         return;
                     }
 
@@ -238,5 +249,28 @@ public final class ConfirmationScreen {
             return;
         }
         server.execute(task);
+    }
+
+    private String validateHeldItemForTransfer(Pokemon pokemon) {
+        MainConfig.Bank bankConfig = CobblePokeBankCommon.INSTANCE.getConfig().bank;
+        ItemStack heldItem = pokemon.heldItem();
+        if (heldItem.isEmpty()) {
+            return null;
+        }
+
+        if (!bankConfig.allowHeldItems) {
+            return "[CobblePokeBank] Pokemon with held items are not allowed in the bank.";
+        }
+
+        if (bankConfig.restrictHeldItemsToOfficialOnly && !heldItem.is(ModTags.COBBLEMON_HELD_ITEMS)) {
+            return "[CobblePokeBank] Only official held items are allowed in the bank.";
+        }
+
+        List<Item> blacklistedItems = MainConfig.parseHeldItemBlacklist(bankConfig.heldItemBlacklist);
+        if (blacklistedItems.contains(heldItem.getItem())) {
+            return "[CobblePokeBank] This held item is blacklisted in the bank.";
+        }
+
+        return null;
     }
 }

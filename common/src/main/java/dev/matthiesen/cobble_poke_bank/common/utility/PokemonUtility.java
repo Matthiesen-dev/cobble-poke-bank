@@ -2,6 +2,7 @@ package dev.matthiesen.cobble_poke_bank.common.utility;
 
 import com.cobblemon.mod.common.api.pokemon.stats.Stats;
 import com.cobblemon.mod.common.item.PokemonItem;
+import com.cobblemon.mod.common.pokemon.Gender;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.util.LocalizationUtilsKt;
 import com.google.gson.JsonObject;
@@ -43,6 +44,22 @@ public final class PokemonUtility {
                 pokemon.getSpecies().getTranslatedName().copy().withStyle(ChatFormatting.GRAY);
     }
 
+    private static String parseShowdownGender(Gender gender) {
+        return switch (gender) {
+            case MALE -> "♂";
+            case FEMALE -> "♀";
+            case GENDERLESS -> "⚲";
+        };
+    }
+
+    private static ChatFormatting getGenderColor(Gender gender) {
+        return switch (gender) {
+            case MALE -> ChatFormatting.BLUE;
+            case FEMALE -> ChatFormatting.LIGHT_PURPLE;
+            case GENDERLESS -> ChatFormatting.GRAY;
+        };
+    }
+
     private static Component[] loreBuilder(Pokemon pokemon) {
         String moveOne = !pokemon.getMoveSet().getMoves().isEmpty() ?
                 Objects.requireNonNull(pokemon.getMoveSet().get(0)).getDisplayName().getString() : "Empty";
@@ -62,6 +79,13 @@ public final class PokemonUtility {
                         .append(Component.literal(
                         pokemon.getNickname() != null ? pokemon.getNickname().getString() : "No nickname"
                 ).withStyle(ChatFormatting.WHITE)),
+                Component.literal("Held Item: ").withStyle(ChatFormatting.DARK_PURPLE)
+                        .append(Component.literal(
+                        pokemon.heldItem().isEmpty() ? "No held item" : pokemon.heldItem().getDisplayName().getString()
+                ).withStyle(ChatFormatting.WHITE)),
+                Component.literal("Gender: ").withStyle(ChatFormatting.LIGHT_PURPLE)
+                        .append(Component.literal(parseShowdownGender(pokemon.getGender())
+                ).withStyle(getGenderColor(pokemon.getGender()))),
                 Component.literal("Nature: ").withStyle(ChatFormatting.YELLOW)
                         .append(LocalizationUtilsKt.lang(pokemon.getNature().getDisplayName().replace("cobblemon.", ""))
                         .withStyle(ChatFormatting.WHITE)),
