@@ -35,7 +35,7 @@ public final class MainConfig {
          * items that may not be compatible with the mod or other connected servers.
          */
         @SerializedName("restrictHeldItemsToOfficialOnly")
-        public boolean restrictHeldItemsToOfficialOnly = true;
+        public boolean restrictHeldItemsToOfficialOnly = false;
 
         /**
          * If true, players will be allowed to store Pokemon with held items that are on the blacklist. If false, Pokemon
