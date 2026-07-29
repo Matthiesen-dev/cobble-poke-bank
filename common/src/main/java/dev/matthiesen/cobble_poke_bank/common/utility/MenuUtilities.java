@@ -14,7 +14,7 @@ public final class MenuUtilities {
     public static final Item BANK = Items.ENDER_CHEST;
     public static final Item INFO = Items.PAPER;
     public static final Item NAV = Items.ARROW;
-    public static final Item BACK = Items.BARRIER;
+    public static final Item BACK = Items.OAK_SIGN;
     public static final Item CONFIRM = Items.LIME_DYE;
     public static final Item CANCEL = Items.RED_DYE;
     public static final Item INVALID = Items.BARRIER;
