@@ -1,16 +1,16 @@
-package dev.matthiesen.template_cobblemon_sidemod.common;
+package dev.matthiesen.cobble_poke_bank.common;
 
 import dev.matthiesen.libs.faststats.Token;
 import dev.matthiesen.matthiesen_core.common.AbstractCommonMod;
 import org.jetbrains.annotations.NotNull;
 
-public final class TemplateCobblemonSidemodCommon extends AbstractCommonMod {
-    public static final String MOD_ID = "template_cobblemon_sidemod";
-    public static final String MOD_NAME = "Template Side-Mod";
+public final class CobblePokeBankCommon extends AbstractCommonMod {
+    public static final String MOD_ID = "cobble_poke_bank";
+    public static final String MOD_NAME = "Cobble Poke Bank";
     public static @Token final String METRICS_TOKEN = "";
-    public static final TemplateCobblemonSidemodCommon INSTANCE = new TemplateCobblemonSidemodCommon();
+    public static final CobblePokeBankCommon INSTANCE = new CobblePokeBankCommon();
 
-    public TemplateCobblemonSidemodCommon() {
+    public CobblePokeBankCommon() {
         super(MOD_ID, MOD_NAME);
     }
 
