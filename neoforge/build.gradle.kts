@@ -39,10 +39,10 @@ dependencies {
     }
     shadowBundle(project(":common", configuration = "transformProductionNeoForge"))
 
-    modImplementation("org.xerial:sqlite-jdbc:3.47.2.0")
+    runtimeOnly("org.xerial:sqlite-jdbc:3.47.2.0")
     shadowBundle("org.xerial:sqlite-jdbc:3.47.2.0")
 
-    modImplementation("com.mysql:mysql-connector-j:8.4.0")
+    runtimeOnly("com.mysql:mysql-connector-j:8.4.0")
     shadowBundle("com.mysql:mysql-connector-j:8.4.0")
 
     testImplementation(libs.junit.api)
@@ -59,5 +59,7 @@ tasks {
     shadowJar {
         exclude("fabric.mod.json")
         configurations = listOf(shadowBundle)
+        relocate("com.mysql", "dev.matthiesen.cobble_poke_bank.shadow.com.mysql")
+        relocate("org.sqlite", "dev.matthiesen.cobble_poke_bank.shadow.org.sqlite")
     }
 }

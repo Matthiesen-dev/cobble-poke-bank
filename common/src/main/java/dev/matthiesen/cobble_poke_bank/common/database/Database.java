@@ -58,10 +58,7 @@ public final class Database {
         String user = config.mySQLConfig.username;
         String password = config.mySQLConfig.password;
         String url = "jdbc:mysql://" + host + ":" + port + "/" + database + "?allowReconnect=true&autoReconnect=true&connectTimeout=" + config.mySQLConfig.timeout;
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            CobblePokeBankCommon.INSTANCE.createErrorLog("MySQL JDBC Driver not found", e);
+        if (!loadJdbcDriver("MySQL", "dev.matthiesen.cobble_poke_bank.shadow.com.mysql.cj.jdbc.Driver", "com.mysql.cj.jdbc.Driver")) {
             return false;
         }
         try {
@@ -75,10 +72,7 @@ public final class Database {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public boolean createSqliteConnection() {
-        try {
-            Class.forName("org.sqlite.JDBC");
-        } catch (ClassNotFoundException e) {
-            CobblePokeBankCommon.INSTANCE.createErrorLog("SQLite JDBC Driver not found", e);
+        if (!loadJdbcDriver("SQLite", "dev.matthiesen.cobble_poke_bank.shadow.org.sqlite.JDBC", "org.sqlite.JDBC")) {
             return false;
         }
 
@@ -94,6 +88,21 @@ public final class Database {
             return false;
         }
         return connection != null;
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private boolean loadJdbcDriver(String dbType, String... classNames) {
+        ClassNotFoundException lastException = null;
+        for (String className : classNames) {
+            try {
+                Class.forName(className);
+                return true;
+            } catch (ClassNotFoundException e) {
+                lastException = e;
+            }
+        }
+        CobblePokeBankCommon.INSTANCE.createErrorLog(dbType + " JDBC Driver not found. Tried: " + String.join(", ", classNames), lastException);
+        return false;
     }
 
     public void createTable(String sql) {
