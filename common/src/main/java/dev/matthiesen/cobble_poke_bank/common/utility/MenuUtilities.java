@@ -14,6 +14,7 @@ public final class MenuUtilities {
     public static final Item BANK = Items.ENDER_CHEST;
     public static final Item INFO = Items.PAPER;
     public static final Item NAV = Items.ARROW;
+    public static final Item BACK = Items.BARRIER;
     public static final Item CONFIRM = Items.LIME_DYE;
     public static final Item CANCEL = Items.RED_DYE;
     public static final Item INVALID = Items.BARRIER;
@@ -40,7 +41,7 @@ public final class MenuUtilities {
     }
 
     public static ItemStack getBackItem() {
-        return builder(NAV, Component.literal("Back").withStyle(ChatFormatting.BLUE));
+        return builder(BACK, Component.literal("Back").withStyle(ChatFormatting.BLUE));
     }
 
     public static ItemStack getPrevItem() {
