@@ -20,6 +20,8 @@ Cobblemon pokemon database backed storage, usable during world resets, or for mu
 - Configure player bank capacity in `config/cobble_poke_bank/config.json` (`bank.maxSlots`):
   - `<= 0` = unlimited
   - `> 0` = fixed slot cap
+- Configure your database connection in `config/cobble_poke_bank/database.json`:
+  - `useMySQL` = `true` for MySQL, `false` for SQLite
 
 ## Docs
 
