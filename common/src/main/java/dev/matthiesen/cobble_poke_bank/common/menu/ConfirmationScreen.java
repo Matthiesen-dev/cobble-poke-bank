@@ -109,7 +109,7 @@ public final class ConfirmationScreen {
             player.displayClientMessage(Component.literal("[CobblePokeBank] Pokemon is no longer in your PC."), false);
             return;
         }
-        String transferValidationMessage = validatePokemonForTransfer(pokemon);
+        String transferValidationMessage = validatePokemonForTransfer(pokemon, TransferDirection.DEPOSIT);
         if (transferValidationMessage != null) {
             player.displayClientMessage(Component.literal(transferValidationMessage), false);
             return;
@@ -171,7 +171,7 @@ public final class ConfirmationScreen {
             return;
         }
 
-        String transferValidationMessage = validatePokemonForTransfer(pokemon);
+        String transferValidationMessage = validatePokemonForTransfer(pokemon, TransferDirection.WITHDRAW);
         if (transferValidationMessage != null) {
             player.displayClientMessage(Component.literal(transferValidationMessage), false);
             return;
@@ -251,38 +251,48 @@ public final class ConfirmationScreen {
         server.execute(task);
     }
 
-    private String validatePokemonForTransfer(Pokemon pokemon) {
+    private String directionToLocation(TransferDirection direction) {
+        return switch (direction) {
+            case DEPOSIT -> "bank";
+            case WITHDRAW -> "Server";
+        };
+    }
+
+    private String validatePokemonForTransfer(Pokemon pokemon, TransferDirection direction) {
         MainConfig.Bank bankConfig = CobblePokeBankCommon.INSTANCE.getConfig().bank;
         ItemStack heldItem = pokemon.heldItem();
+        String location = directionToLocation(direction);
+
         if (!heldItem.isEmpty()) {
             if (bankConfig.noHeldItems) {
-                return "[CobblePokeBank] Pokemon with held items are not allowed in the bank.";
+                return "[CobblePokeBank] Pokemon with held items are not allowed in the " + location + ".";
             }
 
             if (bankConfig.heldItemRestrictions.officialTaggedOnly && !heldItem.is(ModTags.COBBLEMON_HELD_ITEMS)) {
-                return "[CobblePokeBank] Only official held items are allowed in the bank.";
+                return "[CobblePokeBank] Only official held items are allowed in the " + location + ".";
             }
 
             List<Item> blacklistedItems = MainConfig.parseHeldItemBlacklist(bankConfig.heldItemRestrictions.blacklist);
             if (blacklistedItems.contains(heldItem.getItem())) {
-                return "[CobblePokeBank] This held item is blacklisted in the bank.";
+                return "[CobblePokeBank] This held item is blacklisted in the " + location + ".";
+
             }
         }
 
         if (bankConfig.noLegendaries && pokemon.isLegendary()) {
-            return "[CobblePokeBank] Legendary Pokemon are not allowed in the bank.";
+            return "[CobblePokeBank] Legendary Pokemon are not allowed in the " + location + ".";
         }
 
         if (bankConfig.noMythicals && pokemon.isMythical()) {
-            return "[CobblePokeBank] Mythical Pokemon are not allowed in the bank.";
+            return "[CobblePokeBank] Mythical Pokemon are not allowed in the " + location + ".";
         }
 
         if (bankConfig.noUltraBeasts && pokemon.isUltraBeast()) {
-            return "[CobblePokeBank] Ultra Beasts are not allowed in the bank.";
+            return "[CobblePokeBank] Ultra Beasts are not allowed in the " + location + ".";
         }
 
         if (bankConfig.noFainted && pokemon.isFainted()) {
-            return "[CobblePokeBank] Fainted Pokemon are not allowed in the bank.";
+            return "[CobblePokeBank] Fainted Pokemon are not allowed in the " + location + ".";
         }
 
         return null;
