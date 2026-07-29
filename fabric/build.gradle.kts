@@ -24,6 +24,12 @@ dependencies {
     "developmentFabric"(project(":common", configuration = "namedElements"))
     shadowBundle(project(":common", configuration = "transformProductionFabric"))
 
+    modImplementation("org.xerial:sqlite-jdbc:3.47.2.0")
+    shadowBundle("org.xerial:sqlite-jdbc:3.47.2.0")
+
+    modImplementation("com.mysql:mysql-connector-j:8.4.0")
+    shadowBundle("com.mysql:mysql-connector-j:8.4.0")
+
     testImplementation(libs.junit.api)
     testRuntimeOnly(libs.junit.engine)
 }
