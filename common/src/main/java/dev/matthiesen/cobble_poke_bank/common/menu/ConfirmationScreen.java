@@ -259,11 +259,11 @@ public final class ConfirmationScreen {
                 return "[CobblePokeBank] Pokemon with held items are not allowed in the bank.";
             }
 
-            if (bankConfig.heldItemRestrictions.restrictHeldItemsToOfficialOnly && !heldItem.is(ModTags.COBBLEMON_HELD_ITEMS)) {
+            if (bankConfig.heldItemRestrictions.officialTaggedOnly && !heldItem.is(ModTags.COBBLEMON_HELD_ITEMS)) {
                 return "[CobblePokeBank] Only official held items are allowed in the bank.";
             }
 
-            List<Item> blacklistedItems = MainConfig.parseHeldItemBlacklist(bankConfig.heldItemRestrictions.heldItemBlacklist);
+            List<Item> blacklistedItems = MainConfig.parseHeldItemBlacklist(bankConfig.heldItemRestrictions.blacklist);
             if (blacklistedItems.contains(heldItem.getItem())) {
                 return "[CobblePokeBank] This held item is blacklisted in the bank.";
             }

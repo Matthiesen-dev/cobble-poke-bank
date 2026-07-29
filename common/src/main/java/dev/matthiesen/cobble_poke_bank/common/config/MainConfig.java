@@ -38,10 +38,11 @@ public final class MainConfig {
         public int maxSlots = -1;
 
         /**
-         * Contains restrictions on what held items are allowed to be stored in the bank.
+         * If true, players will not be allowed to store Pokemon that have fainted in the bank. If false, fainted Pokemon
+         * will be allowed to be stored in the bank.
          */
-        @SerializedName("heldItemRestrictions")
-        public HeldItemRestrictions heldItemRestrictions = new HeldItemRestrictions();
+        @SerializedName("noFainted")
+        public boolean noFainted = false;
 
         /**
          * If true, players will not be allowed to store Pokemon with held items in the bank. If false, Pokemon with held items
@@ -72,11 +73,10 @@ public final class MainConfig {
         public boolean noUltraBeasts = false;
 
         /**
-         * If true, players will not be allowed to store Pokemon that have fainted in the bank. If false, fainted Pokemon
-         * will be allowed to be stored in the bank.
+         * Contains restrictions on what held items are allowed to be stored in the bank.
          */
-        @SerializedName("noFainted")
-        public boolean noFainted = false;
+        @SerializedName("heldItemRestrictions")
+        public HeldItemRestrictions heldItemRestrictions = new HeldItemRestrictions();
     }
 
     /**
@@ -88,15 +88,15 @@ public final class MainConfig {
          * If true, only official held items (Available via tag) will be allowed in the bank. This is to prevent players from storing custom
          * items that may not be compatible with the mod or other connected servers.
          */
-        @SerializedName("restrictHeldItemsToOfficialOnly")
-        public boolean restrictHeldItemsToOfficialOnly = false;
+        @SerializedName("officialTaggedOnly")
+        public boolean officialTaggedOnly = false;
 
         /**
          * If true, players will be allowed to store Pokemon with held items that are on the blacklist. If false, Pokemon
          * with blacklisted held items will not be allowed to be stored in the bank.
          */
-        @SerializedName("heldItemBlacklist")
-        public List<String> heldItemBlacklist = List.of();
+        @SerializedName("blacklist")
+        public List<String> blacklist = List.of();
     }
 
     /**
