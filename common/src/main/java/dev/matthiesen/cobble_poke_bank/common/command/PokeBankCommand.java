@@ -27,6 +27,11 @@ public final class PokeBankCommand implements CoreCommand {
     }
 
     private int action(CommandContext<CommandSourceStack> context) {
+        if (!CobblePokeBankCommon.INSTANCE.isDatabaseAvailable()) {
+            context.getSource().sendFailure(Component.literal("Database is not available. Please try again later."));
+            return 0;
+        }
+
         ServerPlayer player;
         try {
             player = context.getSource().getPlayerOrException();

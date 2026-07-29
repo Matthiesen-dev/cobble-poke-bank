@@ -27,6 +27,7 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
             INSTANCE.createConfigManager(MainConfig.class, "config");
 
     private CoreDatabase database;
+    private boolean databaseAvailable = false;
 
     public CobblePokeBankCommon() {
         super(MOD_ID, MOD_NAME);
@@ -42,16 +43,26 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
         DATABASE_CONFIG_MANAGER.loadConfig();
         CONFIG_MANAGER.loadConfig();
 
-        boolean databaseReady = prepareDatabase();
-        if (!databaseReady) return;
-
         PermissionRegistry.init();
         getCommandsRegistryManager().registerCommand(PokeBankCommand.CMD);
+
+        PlatformEvents.SERVER_STARTING.subscribe(event -> {
+            boolean databaseReady = prepareDatabase();
+            if (!databaseReady) return;
+            databaseAvailable = true;
+        });
 
         PlatformEvents.SERVER_RELOAD.subscribe(event -> {
             DATABASE_CONFIG_MANAGER.loadConfig();
             CONFIG_MANAGER.loadConfig();
             createInfoLog("Reloaded configs");
+        });
+
+        PlatformEvents.SERVER_STOPPING.subscribe(event -> {
+            if (database != null) {
+                database.close();
+                databaseAvailable = false;
+            }
         });
 
         createInfoLog("Initialized");
@@ -61,8 +72,13 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
         return database;
     }
 
+    public boolean isDatabaseAvailable() {
+        return databaseAvailable;
+    }
+
     public boolean prepareDatabase() {
         long start = System.currentTimeMillis();
+        createInfoLog("Preparing database...");
         try {
             DatabaseConfig config = PokeBankDatabaseConfig.toDatabaseConfig(DATABASE_CONFIG_MANAGER.getConfig());
             database = new CoreDatabase(this, config);
