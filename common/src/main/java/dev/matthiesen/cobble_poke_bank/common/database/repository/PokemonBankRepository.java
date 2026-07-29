@@ -108,5 +108,19 @@ public final class PokemonBankRepository implements IRepository {
         return bankEntries;
     }
 
+    public int getUserBankSize(String user_uuid) {
+        String query = "SELECT COUNT(*) FROM pokemon_bank WHERE user_uuid = ?";
+        try (PreparedStatement preparedStatement = database.prepareStatement(query)) {
+            preparedStatement.setString(1, user_uuid);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+        } catch (SQLException exception) {
+            CobblePokeBankCommon.INSTANCE.createErrorLog("Failed to get user bank size from database", exception);
+        }
+        return 0;
+    }
+
     public record PokemonBankEntry(UUID pokemon_uuid, JsonObject pokemon_json_data) {}
 }

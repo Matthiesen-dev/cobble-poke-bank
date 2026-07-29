@@ -32,4 +32,8 @@ public final class PokemonBankService {
     public Map<Integer, PokemonBankRepository.PokemonBankEntry> getUserBank(String user_uuid) {
         return repository.getUserBank(user_uuid);
     }
+
+    public int getUserBankSize(String user_uuid) {
+        return repository.getUserBankSize(user_uuid);
+    }
 }

@@ -12,7 +12,6 @@ import ca.landonjw.gooeylibs2.api.page.Page;
 import ca.landonjw.gooeylibs2.api.template.types.ChestTemplate;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import dev.matthiesen.cobble_poke_bank.common.database.repository.PokemonBankRepository;
-import dev.matthiesen.cobble_poke_bank.common.database.service.DatabaseServices;
 import dev.matthiesen.cobble_poke_bank.common.utility.MenuUtilities;
 import dev.matthiesen.cobble_poke_bank.common.utility.PokemonUtility;
 import net.minecraft.network.chat.Component;
@@ -25,15 +24,15 @@ import java.util.Map;
 
 public final class UserBankScreen {
     private final ServerPlayer player;
+    private final Map<Integer, PokemonBankRepository.PokemonBankEntry> entries;
 
-    public UserBankScreen(ServerPlayer player) {
+    public UserBankScreen(ServerPlayer player, Map<Integer, PokemonBankRepository.PokemonBankEntry> entries) {
         this.player = player;
+        this.entries = entries;
     }
 
     private List<Button> getPokemonButtons() {
         List<Button> buttons = new ArrayList<>();
-        Map<Integer, PokemonBankRepository.PokemonBankEntry> entries =
-                DatabaseServices.POKE_BANK.getUserBank(player.getUUID().toString());
 
         entries.entrySet().stream()
                 .sorted(Comparator.comparingInt(Map.Entry::getKey))
@@ -59,7 +58,7 @@ public final class UserBankScreen {
                 .display(PokemonUtility.pokemonToItem(pokemon))
                 .onClick(action -> UIManager.openUIForcefully(
                         player,
-                        new ConfirmationScreen(player, ConfirmationScreen.TransferDirection.WITHDRAW, entry.pokemon_uuid()).getPage()
+                        ConfirmationScreen.withdraw(player, entry).getPage()
                 ))
                 .build();
     }

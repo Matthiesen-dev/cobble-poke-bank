@@ -73,6 +73,7 @@ public final class Database {
         return connection != null;
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public boolean createSqliteConnection() {
         try {
             Class.forName("org.sqlite.JDBC");

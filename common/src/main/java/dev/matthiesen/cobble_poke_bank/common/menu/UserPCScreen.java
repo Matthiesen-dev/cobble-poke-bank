@@ -36,7 +36,7 @@ public final class UserPCScreen {
                     .display(PokemonUtility.pokemonToItem(pokemon))
                     .onClick(action -> UIManager.openUIForcefully(
                             player,
-                            new ConfirmationScreen(player, ConfirmationScreen.TransferDirection.DEPOSIT, pokemon.getUuid()).getPage()
+                            ConfirmationScreen.deposit(player, pokemon.getUuid()).getPage()
                     ))
                     .build();
             buttons.add(button);

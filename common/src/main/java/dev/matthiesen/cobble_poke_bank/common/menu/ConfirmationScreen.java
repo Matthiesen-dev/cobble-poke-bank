@@ -15,26 +15,42 @@ import dev.matthiesen.cobble_poke_bank.common.database.service.DatabaseServices;
 import dev.matthiesen.cobble_poke_bank.common.utility.MenuUtilities;
 import dev.matthiesen.cobble_poke_bank.common.utility.PokemonUtility;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public final class ConfirmationScreen {
     private final ServerPlayer player;
     private final TransferDirection direction;
     private final UUID pokemonUUID;
+    private final PokemonBankRepository.PokemonBankEntry bankEntry;
 
     public enum TransferDirection {
         DEPOSIT,
         WITHDRAW
     }
 
-    public ConfirmationScreen(ServerPlayer player, TransferDirection direction, UUID pokemonUUID) {
+    private ConfirmationScreen(
+            ServerPlayer player,
+            TransferDirection direction,
+            UUID pokemonUUID,
+            PokemonBankRepository.PokemonBankEntry bankEntry
+    ) {
         this.player = player;
         this.direction = direction;
         this.pokemonUUID = pokemonUUID;
+        this.bankEntry = bankEntry;
+    }
+
+    public static ConfirmationScreen deposit(ServerPlayer player, UUID pokemonUUID) {
+        return new ConfirmationScreen(player, TransferDirection.DEPOSIT, pokemonUUID, null);
+    }
+
+    public static ConfirmationScreen withdraw(ServerPlayer player, PokemonBankRepository.PokemonBankEntry bankEntry) {
+        return new ConfirmationScreen(player, TransferDirection.WITHDRAW, bankEntry.pokemon_uuid(), bankEntry);
     }
 
     public Page getPage() {
@@ -49,7 +65,7 @@ public final class ConfirmationScreen {
 
         Button cancel = GooeyButton.builder()
                 .display(MenuUtilities.getCancelItem())
-                .onClick(action -> UIManager.openUIForcefully(player, getBackPage()))
+                .onClick(action -> openBackPage())
                 .build();
 
         Button info = GooeyButton.builder()
@@ -76,73 +92,109 @@ public final class ConfirmationScreen {
     }
 
     private void handleConfirm() {
-        TransferResult result = direction == TransferDirection.DEPOSIT ? deposit() : withdraw();
-        player.displayClientMessage(Component.literal(result.message), false);
-        if (result.success) {
-            UIManager.openUIForcefully(player, getBackPage());
+        if (direction == TransferDirection.DEPOSIT) {
+            depositAsync();
+        } else {
+            withdrawAsync();
         }
     }
 
-    private TransferResult deposit() {
-        int maxSlots = CobblePokeBankCommon.INSTANCE.getConfig().bank.maxSlots;
-        int currentBankSize = DatabaseServices.POKE_BANK.getUserBank(player.getUUID().toString()).size();
-        if (maxSlots > 0 && currentBankSize >= maxSlots) {
-            return new TransferResult(false, "[CobblePokeBank] Your bank is full.");
-        }
-
+    private void depositAsync() {
         Pokemon pokemon = findPokemonInPc();
         if (pokemon == null) {
-            return new TransferResult(false, "[CobblePokeBank] Pokemon is no longer in your PC.");
+            player.displayClientMessage(Component.literal("[CobblePokeBank] Pokemon is no longer in your PC."), false);
+            return;
         }
 
         JsonObject jsonObject = PokemonUtility.pokemonToJson(pokemon, player.level().registryAccess());
-        boolean saved = DatabaseServices.POKE_BANK.insertOrUpdateBankEntry(
-                player.getUUID().toString(),
-                pokemon.getUuid().toString(),
-                jsonObject
-        );
-        if (!saved) {
-            return new TransferResult(false, "[CobblePokeBank] Failed to save Pokemon to bank.");
-        }
+        String userUUID = player.getUUID().toString();
+        String pokemonUUIDString = pokemon.getUuid().toString();
+        int maxSlots = CobblePokeBankCommon.INSTANCE.getConfig().bank.maxSlots;
 
-        boolean removed = Cobblemon.INSTANCE.getStorage().getPC(player).remove(pokemon);
-        if (!removed) {
-            DatabaseServices.POKE_BANK.deleteBankEntry(player.getUUID().toString(), pokemon.getUuid().toString());
-            return new TransferResult(false, "[CobblePokeBank] Failed to remove Pokemon from PC.");
-        }
+        CompletableFuture<Boolean> saveFuture = DatabaseServices.ASYNC_POKE_BANK.getUserBankSize(userUUID)
+                .thenCompose(currentBankSize -> {
+                    if (maxSlots > 0 && currentBankSize >= maxSlots) {
+                        return CompletableFuture.completedFuture(false);
+                    }
+                    return DatabaseServices.ASYNC_POKE_BANK.insertOrUpdateBankEntry(userUUID, pokemonUUIDString, jsonObject);
+                });
 
-        return new TransferResult(true, "[CobblePokeBank] Pokemon deposited into your bank.");
+        saveFuture.whenComplete((saved, throwable) -> runOnServerThread(() -> {
+            if (throwable != null) {
+                CobblePokeBankCommon.INSTANCE.createErrorLog("Failed to store Pokemon in bank asynchronously", throwable);
+                player.displayClientMessage(Component.literal("[CobblePokeBank] Failed to save Pokemon to bank."), false);
+                return;
+            }
+
+            if (!saved) {
+                if (maxSlots > 0) {
+                    player.displayClientMessage(Component.literal("[CobblePokeBank] Your bank is full."), false);
+                } else {
+                    player.displayClientMessage(Component.literal("[CobblePokeBank] Failed to save Pokemon to bank."), false);
+                }
+                return;
+            }
+
+            Pokemon latestPokemon = findPokemonInPc();
+            if (latestPokemon == null || !Cobblemon.INSTANCE.getStorage().getPC(player).remove(latestPokemon)) {
+                DatabaseServices.ASYNC_POKE_BANK.deleteBankEntry(userUUID, pokemonUUIDString);
+                player.displayClientMessage(Component.literal("[CobblePokeBank] Failed to remove Pokemon from PC."), false);
+                return;
+            }
+
+            player.displayClientMessage(Component.literal("[CobblePokeBank] Pokemon deposited into your bank."), false);
+            UIManager.openUIForcefully(player, new UserPCScreen(player).getPage());
+        }));
     }
 
-    private TransferResult withdraw() {
-        PokemonBankRepository.PokemonBankEntry entry = findBankEntry();
-        if (entry == null) {
-            return new TransferResult(false, "[CobblePokeBank] Pokemon is no longer in your bank.");
+    private void withdrawAsync() {
+        if (bankEntry == null) {
+            player.displayClientMessage(Component.literal("[CobblePokeBank] Pokemon is no longer in your bank."), false);
+            return;
         }
+        String userUUID = player.getUUID().toString();
+        String pokemonUUIDString = bankEntry.pokemon_uuid().toString();
 
-        Pokemon pokemon;
-        try {
-            pokemon = PokemonUtility.pokemonFromJson(entry.pokemon_json_data(), player.level().registryAccess());
-        } catch (Exception exception) {
-            CobblePokeBankCommon.INSTANCE.createErrorLog("Failed to deserialize bank Pokemon entry", exception);
-            return new TransferResult(false, "[CobblePokeBank] Failed to read Pokemon data.");
-        }
+        DatabaseServices.ASYNC_POKE_BANK.deleteBankEntry(userUUID, pokemonUUIDString)
+                .whenComplete((deleted, throwable) -> runOnServerThread(() -> {
+                    if (throwable != null) {
+                        CobblePokeBankCommon.INSTANCE.createErrorLog("Failed to delete Pokemon from bank asynchronously", throwable);
+                        player.displayClientMessage(Component.literal("[CobblePokeBank] Failed to remove Pokemon from bank."), false);
+                        return;
+                    }
 
-        boolean added = Cobblemon.INSTANCE.getStorage().getPC(player).add(pokemon);
-        if (!added) {
-            return new TransferResult(false, "[CobblePokeBank] Your PC is full.");
-        }
+                    if (!deleted) {
+                        player.displayClientMessage(Component.literal("[CobblePokeBank] Pokemon is no longer in your bank."), false);
+                        return;
+                    }
 
-        boolean deleted = DatabaseServices.POKE_BANK.deleteBankEntry(
-                player.getUUID().toString(),
-                entry.pokemon_uuid().toString()
-        );
-        if (!deleted) {
-            Cobblemon.INSTANCE.getStorage().getPC(player).remove(pokemon);
-            return new TransferResult(false, "[CobblePokeBank] Failed to remove Pokemon from bank.");
-        }
+                    Pokemon pokemon;
+                    try {
+                        pokemon = PokemonUtility.pokemonFromJson(bankEntry.pokemon_json_data(), player.level().registryAccess());
+                    } catch (Exception exception) {
+                        CobblePokeBankCommon.INSTANCE.createErrorLog("Failed to deserialize bank Pokemon entry", exception);
+                        DatabaseServices.ASYNC_POKE_BANK.insertOrUpdateBankEntry(
+                                userUUID,
+                                pokemonUUIDString,
+                                bankEntry.pokemon_json_data()
+                        );
+                        player.displayClientMessage(Component.literal("[CobblePokeBank] Failed to read Pokemon data."), false);
+                        return;
+                    }
 
-        return new TransferResult(true, "[CobblePokeBank] Pokemon moved into your PC.");
+                    if (!Cobblemon.INSTANCE.getStorage().getPC(player).add(pokemon)) {
+                        DatabaseServices.ASYNC_POKE_BANK.insertOrUpdateBankEntry(
+                                userUUID,
+                                pokemonUUIDString,
+                                bankEntry.pokemon_json_data()
+                        );
+                        player.displayClientMessage(Component.literal("[CobblePokeBank] Your PC is full."), false);
+                        return;
+                    }
+
+                    player.displayClientMessage(Component.literal("[CobblePokeBank] Pokemon moved into your PC."), false);
+                    BankMenuNavigator.openBankMenuAsync(player);
+                }));
     }
 
     private ItemStack resolvePreviewItem() {
@@ -151,13 +203,12 @@ public final class ConfirmationScreen {
             return pokemon != null ? PokemonUtility.pokemonToItem(pokemon) : MenuUtilities.getInvalidEntryItem();
         }
 
-        PokemonBankRepository.PokemonBankEntry entry = findBankEntry();
-        if (entry == null) {
+        if (bankEntry == null) {
             return MenuUtilities.getInvalidEntryItem();
         }
 
         try {
-            Pokemon pokemon = PokemonUtility.pokemonFromJson(entry.pokemon_json_data(), player.level().registryAccess());
+            Pokemon pokemon = PokemonUtility.pokemonFromJson(bankEntry.pokemon_json_data(), player.level().registryAccess());
             return PokemonUtility.pokemonToItem(pokemon);
         } catch (Exception exception) {
             return MenuUtilities.getInvalidEntryItem();
@@ -173,22 +224,19 @@ public final class ConfirmationScreen {
         return null;
     }
 
-    private PokemonBankRepository.PokemonBankEntry findBankEntry() {
-        Map<Integer, PokemonBankRepository.PokemonBankEntry> userBank =
-                DatabaseServices.POKE_BANK.getUserBank(player.getUUID().toString());
-        for (PokemonBankRepository.PokemonBankEntry value : userBank.values()) {
-            if (value.pokemon_uuid().equals(pokemonUUID)) {
-                return value;
-            }
+    private void openBackPage() {
+        if (direction == TransferDirection.DEPOSIT) {
+            UIManager.openUIForcefully(player, new UserPCScreen(player).getPage());
+            return;
         }
-        return null;
+        BankMenuNavigator.openBankMenuAsync(player);
     }
 
-    private Page getBackPage() {
-        return direction == TransferDirection.DEPOSIT ?
-                new UserPCScreen(player).getPage() :
-                new UserBankScreen(player).getPage();
+    private void runOnServerThread(Runnable task) {
+        MinecraftServer server = player.getServer();
+        if (server == null) {
+            return;
+        }
+        server.execute(task);
     }
-
-    private record TransferResult(boolean success, String message) {}
 }

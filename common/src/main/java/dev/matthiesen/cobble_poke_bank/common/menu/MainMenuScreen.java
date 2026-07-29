@@ -29,7 +29,7 @@ public final class MainMenuScreen {
 
         Button openBank = GooeyButton.builder()
                 .display(MenuUtilities.getBankMenuItem())
-                .onClick(action -> UIManager.openUIForcefully(player, new UserBankScreen(player).getPage()))
+                .onClick(action -> BankMenuNavigator.openBankMenuAsync(player))
                 .build();
 
         Button info = GooeyButton.builder()
