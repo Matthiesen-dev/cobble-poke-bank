@@ -12,10 +12,6 @@ pluginManager.withPlugin("dev.architectury.loom") {
     configure<LoomGradleExtensionAPI> {
         enableTransitiveAccessWideners.set(true)
         silentMojangMappingsLicense()
-
-        val clientConfig = runConfigs.getByName("client")
-        clientConfig.programArg("--username=AdamMatthiesen")
-        clientConfig.programArg("--uuid=2a1cde34-0cee-4b23-bc8f-9145b1b8cc51")
     }
 
     tasks.named<RemapJarTask>("remapJar") {

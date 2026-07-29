@@ -10,6 +10,10 @@ architectury {
     neoForge()
 }
 
+val devClientUsername = providers.gradleProperty("devClientUsername").orElse("AdamMatthiesen")
+val devClientUuid = providers.gradleProperty("devClientUuid").orElse("2a1cde34-0cee-4b23-bc8f-9145b1b8cc51")
+
+
 repositories {
     mavenCentral()
     maven("https://hub.spigotmc.org/nexus/content/groups/public/")
@@ -50,6 +54,10 @@ dependencies {
 }
 
 tasks {
+    named<JavaExec>("runClient") {
+        args("--username", devClientUsername.get(), "--uuid", devClientUuid.get())
+    }
+
     processResources {
         filesMatching("META-INF/neoforge.mods.toml") {
             expand(project.properties)
