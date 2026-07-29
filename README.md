@@ -6,8 +6,6 @@
   <img src="https://mods.matthiesen.dev/badges/gooeylibs.svg" alt="GooeyLibs">
 </div>
 
-Cobblemon pokemon database backed storage, usable during world resets, or for multi-server setups where you can store and transfer pokemon between servers.
-
 Cobble Poke Bank is a Server-Side mod for Cobblemon that allows players to store their Pokémon in a database-backed bank. Designed for use in single (SQLite) 
 or multiserver (SQLite or MySQL) environments, this mod provides a persistent storage solution for Pokémon, ensuring that they are not lost during world resets or server transitions.
 
