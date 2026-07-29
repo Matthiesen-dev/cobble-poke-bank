@@ -12,12 +12,9 @@ kotlin-for-forge = "5.10.0"
 cobblemon = "1.7.3+1.21.1"
 junit = "5.1.0"
 publish = "0.35.0"
-matthiesen_core = "1.0.0-beta.14"
+matthiesen_core = "1.0.0-beta.16"
 sponge-mixin = "0.8.5"
 gooeylibs_version = "3.1.1-1.21.x"
-
-sqlite-jdbc = "3.53.2.0"
-mysql-connector-j = "9.7.0"
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
@@ -49,8 +46,6 @@ sponge-mixin = { group = "org.spongepowered", name = "mixin", version.ref = "spo
 gooeylibs-common = { group = "ca.landonjw.gooeylibs", name = "api", version.ref = "gooeylibs_version" }
 gooeylibs-fabric = { group = "ca.landonjw.gooeylibs", name = "fabric", version.ref = "gooeylibs_version" }
 gooeylibs-neoforge = { group = "ca.landonjw.gooeylibs", name = "neoforge", version.ref = "gooeylibs_version" }
-sqlite-jdbc = { group = "org.xerial", name = "sqlite-jdbc", version.ref = "sqlite-jdbc" }
-mysql-connector-j = { group = "com.mysql", name = "mysql-connector-j", version.ref = "mysql-connector-j" }
 
 [bundles]
 commonCompileOnly = ["sponge-mixin"]

@@ -1,15 +1,16 @@
 package dev.matthiesen.cobble_poke_bank.common;
 
 import dev.matthiesen.cobble_poke_bank.common.command.PokeBankCommand;
-import dev.matthiesen.cobble_poke_bank.common.config.DatabaseConfig;
+import dev.matthiesen.cobble_poke_bank.common.config.PokeBankDatabaseConfig;
 import dev.matthiesen.cobble_poke_bank.common.config.MainConfig;
-import dev.matthiesen.cobble_poke_bank.common.database.Database;
 import dev.matthiesen.cobble_poke_bank.common.database.service.DatabaseServices;
 import dev.matthiesen.cobble_poke_bank.common.registry.PermissionRegistry;
 import dev.matthiesen.libs.faststats.Token;
 import dev.matthiesen.matthiesen_core.common.AbstractCommonMod;
+import dev.matthiesen.matthiesen_core.common.api.database.config.DatabaseConfig;
 import dev.matthiesen.matthiesen_core.common.api.events.PlatformEvents;
 import dev.matthiesen.matthiesen_core.common.api.permissions.Permission;
+import dev.matthiesen.matthiesen_core.common.core.database.CoreDatabase;
 import dev.matthiesen.matthiesen_core.common.utility.config.ConfigManager;
 import net.minecraft.commands.CommandSourceStack;
 import org.jetbrains.annotations.NotNull;
@@ -20,12 +21,12 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
     public static @Token final String METRICS_TOKEN = "e2cc0b9381f499678f05477461507d81";
     public static final CobblePokeBankCommon INSTANCE = new CobblePokeBankCommon();
 
-    private static final ConfigManager<DatabaseConfig> DATABASE_CONFIG_MANAGER =
-            INSTANCE.createConfigManager(DatabaseConfig.class, "database");
+    private static final ConfigManager<PokeBankDatabaseConfig> DATABASE_CONFIG_MANAGER =
+            INSTANCE.createConfigManager(PokeBankDatabaseConfig.class, "database");
     private static final ConfigManager<MainConfig> CONFIG_MANAGER =
             INSTANCE.createConfigManager(MainConfig.class, "config");
 
-    private Database database;
+    private CoreDatabase database;
 
     public CobblePokeBankCommon() {
         super(MOD_ID, MOD_NAME);
@@ -56,14 +57,15 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
         createInfoLog("Initialized");
     }
 
-    public Database getDatabase() {
+    public CoreDatabase getDatabase() {
         return database;
     }
 
     public boolean prepareDatabase() {
         long start = System.currentTimeMillis();
         try {
-            database = new Database(DATABASE_CONFIG_MANAGER.getConfig());
+            DatabaseConfig config = PokeBankDatabaseConfig.toDatabaseConfig(DATABASE_CONFIG_MANAGER.getConfig());
+            database = new CoreDatabase(MOD_ID, config);
             boolean connected = database.createConnection();
             if (!connected) {
                 createErrorLog("Failed to connect to database");

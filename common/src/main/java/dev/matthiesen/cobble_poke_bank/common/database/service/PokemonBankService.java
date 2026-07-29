@@ -1,15 +1,15 @@
 package dev.matthiesen.cobble_poke_bank.common.database.service;
 
 import com.google.gson.JsonObject;
-import dev.matthiesen.cobble_poke_bank.common.database.Database;
 import dev.matthiesen.cobble_poke_bank.common.database.repository.PokemonBankRepository;
+import dev.matthiesen.matthiesen_core.common.core.database.CoreDatabase;
 
 import java.util.Map;
 
 public final class PokemonBankService {
     private final PokemonBankRepository repository;
 
-    public PokemonBankService(Database database) {
+    public PokemonBankService(CoreDatabase database) {
         this.repository = new PokemonBankRepository(database);
     }
 

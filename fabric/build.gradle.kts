@@ -29,12 +29,6 @@ dependencies {
     "developmentFabric"(project(":common", configuration = "namedElements"))
     shadowBundle(project(":common", configuration = "transformProductionFabric"))
 
-    runtimeOnly(libs.sqlite.jdbc)
-    shadowBundle(libs.sqlite.jdbc)
-
-    runtimeOnly(libs.mysql.connector.j)
-    shadowBundle(libs.mysql.connector.j)
-
     testImplementation(libs.junit.api)
     testRuntimeOnly(libs.junit.engine)
 }
@@ -52,8 +46,5 @@ tasks {
 
     shadowJar {
         configurations = listOf(shadowBundle)
-        relocate("com.mysql", "dev.matthiesen.cobble_poke_bank.shadow.com.mysql")
-        relocate("com.google.protobuf", "dev.matthiesen.cobble_poke_bank.shadow.com.google.protobuf")
-        relocate("org.sqlite", "dev.matthiesen.cobble_poke_bank.shadow.org.sqlite")
     }
 }

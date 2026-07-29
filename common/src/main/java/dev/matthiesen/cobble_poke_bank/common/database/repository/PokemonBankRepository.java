@@ -3,8 +3,9 @@ package dev.matthiesen.cobble_poke_bank.common.database.repository;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dev.matthiesen.cobble_poke_bank.common.CobblePokeBankCommon;
-import dev.matthiesen.cobble_poke_bank.common.database.Database;
-import dev.matthiesen.cobble_poke_bank.common.database.dialect.MySQLDialect;
+import dev.matthiesen.matthiesen_core.common.api.database.repository.IRepository;
+import dev.matthiesen.matthiesen_core.common.core.database.CoreDatabase;
+import dev.matthiesen.matthiesen_core.common.core.database.dialect.MySQLDialect;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,9 +17,9 @@ import java.util.UUID;
 
 public final class PokemonBankRepository implements IRepository {
 
-    private final Database database;
+    private final CoreDatabase database;
 
-    public PokemonBankRepository(Database database) {
+    public PokemonBankRepository(CoreDatabase database) {
         this.database = database;
     }
 
