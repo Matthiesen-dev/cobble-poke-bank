@@ -60,6 +60,7 @@ tasks {
         exclude("fabric.mod.json")
         configurations = listOf(shadowBundle)
         relocate("com.mysql", "dev.matthiesen.cobble_poke_bank.shadow.com.mysql")
+        relocate("com.google.protobuf", "dev.matthiesen.cobble_poke_bank.shadow.com.google.protobuf")
         relocate("org.sqlite", "dev.matthiesen.cobble_poke_bank.shadow.org.sqlite")
     }
 }
