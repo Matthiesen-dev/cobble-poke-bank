@@ -22,7 +22,7 @@ public final class MainConfig {
      * Defines the permission levels required to use specific commands in the mod. Each command has an associated permission
      * level that determines who can execute it.
      */
-    @SerializedName("permissionlevels")
+    @SerializedName("permissionLevels")
     public PermissionLevels permissionLevels = new PermissionLevels();
 
     /**
