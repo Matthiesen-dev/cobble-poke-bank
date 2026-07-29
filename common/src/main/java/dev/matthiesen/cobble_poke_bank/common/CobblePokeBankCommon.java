@@ -65,7 +65,7 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
         long start = System.currentTimeMillis();
         try {
             DatabaseConfig config = PokeBankDatabaseConfig.toDatabaseConfig(DATABASE_CONFIG_MANAGER.getConfig());
-            database = new CoreDatabase(MOD_ID, config);
+            database = new CoreDatabase(this, config);
             boolean connected = database.createConnection();
             if (!connected) {
                 createErrorLog("Failed to connect to database");
