@@ -14,6 +14,7 @@ junit = "5.1.0"
 publish = "0.35.0"
 matthiesen_core = "1.0.0-beta.14"
 sponge-mixin = "0.8.5"
+gooeylibs_version = "3.1.1-1.21.x"
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
@@ -43,10 +44,19 @@ matthiesen-core-fabric = { group = "dev.matthiesen", name = "matthiesen-core-fab
 matthiesen-core-neoforge = { group = "dev.matthiesen", name = "matthiesen-core-neoforge", version.ref = "matthiesen_core" }
 sponge-mixin = { group = "org.spongepowered", name = "mixin", version.ref = "sponge-mixin" }
 
+gooeylibs-common = { group = "ca.landonjw.gooeylibs", name = "api", version.ref = "gooeylibs_version" }
+gooeylibs-fabric = { group = "ca.landonjw.gooeylibs", name = "fabric", version.ref = "gooeylibs_version" }
+gooeylibs-neoforge = { group = "ca.landonjw.gooeylibs", name = "neoforge", version.ref = "gooeylibs_version" }
+
 [bundles]
 commonCompileOnly = ["sponge-mixin"]
 commonImplementation = []
-commonModImplementation = ["cobblemon-common", "matthiesen-core-common"]
+commonModImplementation = ["gooeylibs-common"]
+commonModImplementationNoTransitive = ["cobblemon-common", "matthiesen-core-common"]
+
 fabricModImplementation = ["fabric-loader", "fabric-api", "fabric-language-kotlin"]
 fabricModImplementationNoTransitive = ["cobblemon-fabric", "matthiesen-core-fabric"]
+fabricModRuntimeOnly = ["gooeylibs-fabric"]
+
 neoforgeModImplementation = ["cobblemon-neoforge", "matthiesen-core-neoforge"]
+neoforgeModRuntimeOnly = ["gooeylibs-neoforge"]

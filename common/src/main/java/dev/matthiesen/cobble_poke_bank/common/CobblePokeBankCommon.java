@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 public final class CobblePokeBankCommon extends AbstractCommonMod {
     public static final String MOD_ID = "cobble_poke_bank";
     public static final String MOD_NAME = "Cobble Poke Bank";
-    public static @Token final String METRICS_TOKEN = "";
+    public static @Token final String METRICS_TOKEN = "e2cc0b9381f499678f05477461507d81";
     public static final CobblePokeBankCommon INSTANCE = new CobblePokeBankCommon();
 
     public CobblePokeBankCommon() {
