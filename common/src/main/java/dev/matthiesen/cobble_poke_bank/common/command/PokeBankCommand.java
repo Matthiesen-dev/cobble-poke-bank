@@ -35,18 +35,18 @@ public final class PokeBankCommand implements CoreCommand {
     public void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registry, Commands.CommandSelection context) {
         var permissions = CobblePokeBankCommon.INSTANCE.getPermissions();
 
-        // /pokebank status blacklist
+        // /pokebank status blacklist - shows blacklist entries
         var blacklistCMD = CommandBuilder.create("blacklist")
                 .requires(requirePredicate(permissions.POKEBANK_STATUS_PERMISSION))
                 .executes(this::statusBlacklist);
 
-        // /pokebank status
+        // /pokebank status - Shows mod status
         var statusCMD = CommandBuilder.create("status")
                 .requires(requirePredicate(permissions.POKEBANK_STATUS_PERMISSION))
                 .executes(this::status)
                 .then(blacklistCMD);
 
-        // /pokebank
+        // /pokebank - Opens the bank menu
         var pokeBankCMD = CommandBuilder.create("pokebank")
                 .requires(requirePredicate(permissions.POKEBANK_PERMISSION))
                 .executes(this::action)
