@@ -44,6 +44,9 @@ public final class MessagesConfig {
 
         @SerializedName("noBlacklistedItems")
         public String noBlacklistedItems = "§eNo held items are blacklisted.";
+
+        @SerializedName("inBattle")
+        public String inBattle = "§cYou cannot access the bank while in battle.";
     }
 
     public static class DatabaseMessages {

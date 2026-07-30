@@ -1,6 +1,7 @@
 package dev.matthiesen.cobble_poke_bank.common.command;
 
 import ca.landonjw.gooeylibs2.api.UIManager;
+import com.cobblemon.mod.common.util.PlayerExtensionsKt;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -55,6 +56,11 @@ public final class PokeBankCommand implements CoreCommand {
         } catch (CommandSyntaxException exception) {
             CobblePokeBankCommon.INSTANCE.createErrorLog("Failed to find executing player for pokebank command", exception);
             context.getSource().sendSystemMessage(ChatHelper.buildChatMessage(messagesConfig.commandMessages.playerNotFound));
+            return 0;
+        }
+
+        if (PlayerExtensionsKt.isInBattle(player)) {
+            context.getSource().sendSystemMessage(ChatHelper.buildChatMessage(messagesConfig.commandMessages.inBattle));
             return 0;
         }
 
