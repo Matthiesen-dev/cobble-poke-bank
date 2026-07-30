@@ -118,6 +118,13 @@ public final class MainConfig {
          */
         @SerializedName("command.pokebank.status")
         public int COMMAND_POKEBANK_STATUS_PERMISSION_LEVEL = PermissionLevel.ALL_COMMANDS.getLevel();
+
+        /**
+         * The permission level required to use the /pokebank reload command. This value is an integer that corresponds to a specific
+         * permission level defined in the PermissionLevel enum.
+         */
+        @SerializedName("command.pokebank.reload")
+        public int COMMAND_POKEBANK_RELOAD_PERMISSION_LEVEL = PermissionLevel.ALL_COMMANDS.getLevel();
     }
 
     /**

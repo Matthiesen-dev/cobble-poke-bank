@@ -47,6 +47,9 @@ public final class MessagesConfig {
 
         @SerializedName("inBattle")
         public String inBattle = "§cYou cannot access the bank while in battle.";
+
+        @SerializedName("configsReloaded")
+        public String configsReloaded = "§aConfigs reloaded successfully.";
     }
 
     public static class DatabaseMessages {

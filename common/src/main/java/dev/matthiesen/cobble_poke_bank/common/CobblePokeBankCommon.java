@@ -49,7 +49,7 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
         getCommandsRegistryManager().registerCommand(PokeBankCommand.CMD);
 
         PlatformEvents.SERVER_STARTING.subscribe(event -> prepareDatabase());
-        PlatformEvents.SERVER_RELOAD.subscribe(event -> loadConfigs(true));
+        PlatformEvents.SERVER_RELOAD.subscribe(event -> reloadSystem());
         PlatformEvents.SERVER_STOPPING.subscribe(event -> shutdownDatabase());
 
         createInfoLog("Initialized");
@@ -63,6 +63,15 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
             createInfoLog("Reloaded configs");
         } else {
             createInfoLog("Loaded configs");
+        }
+    }
+
+    public void reloadSystem() {
+        loadConfigs(true);
+        var dbConfig = PokeBankDatabaseConfig.toDatabaseConfig(DATABASE_CONFIG_MANAGER.getConfig());
+        if (dbConfig.useMySQL) {
+            createInfoLog("Reloading database connection...");
+            databaseAvailable = database.reConnect(dbConfig);
         }
     }
 

@@ -46,11 +46,17 @@ public final class PokeBankCommand implements CoreCommand {
                 .executes(this::status)
                 .then(blacklistCMD);
 
+        // /pokebank reload - Reloads the config
+        var reloadCMD = CommandBuilder.create("reload")
+                .requires(requirePredicate(permissions.POKEBANK_RELOAD_PERMISSION))
+                .executes(this::reload);
+
         // /pokebank - Opens the bank menu
         var pokeBankCMD = CommandBuilder.create("pokebank")
                 .requires(requirePredicate(permissions.POKEBANK_PERMISSION))
                 .executes(this::action)
-                .then(statusCMD);
+                .then(statusCMD)
+                .then(reloadCMD);
 
         dispatcher.register(pokeBankCMD.build());
     }
@@ -123,6 +129,14 @@ public final class PokeBankCommand implements CoreCommand {
         }
 
         source.sendSystemMessage(tableBuilder.build());
+        return 1;
+    }
+
+    private int reload(CommandContext<CommandSourceStack> context) {
+        CommandSourceStack source = context.getSource();
+        var messagesConfig = CobblePokeBankCommon.INSTANCE.getMessagesConfig();
+        CobblePokeBankCommon.INSTANCE.reloadSystem();
+        source.sendSystemMessage(ChatHelper.buildChatMessage(messagesConfig.commandMessages.configsReloaded));
         return 1;
     }
 }

@@ -15,10 +15,15 @@ public final class PermissionRegistry {
             "command.pokebank.status",
             CobblePokeBankCommon.INSTANCE.getConfig().permissionLevels.COMMAND_POKEBANK_STATUS_PERMISSION_LEVEL
     );
+    public static Permission POKEBANK_RELOAD_PERMISSION = register(
+            "command.pokebank.reload",
+            CobblePokeBankCommon.INSTANCE.getConfig().permissionLevels.COMMAND_POKEBANK_RELOAD_PERMISSION_LEVEL
+    );
 
     public static class Permissions {
         public Permission POKEBANK_PERMISSION = PermissionRegistry.POKEBANK_PERMISSION;
         public Permission POKEBANK_STATUS_PERMISSION = PermissionRegistry.POKEBANK_STATUS_PERMISSION;
+        public Permission POKEBANK_RELOAD_PERMISSION = PermissionRegistry.POKEBANK_RELOAD_PERMISSION;
     }
 
     public static Permissions PERMISSIONS;
