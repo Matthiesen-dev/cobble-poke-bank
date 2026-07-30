@@ -48,7 +48,7 @@ public final class PokemonUtility {
         return switch (gender) {
             case MALE -> "♂";
             case FEMALE -> "♀";
-            case GENDERLESS -> "⚲";
+            case GENDERLESS -> "○";
         };
     }
 
