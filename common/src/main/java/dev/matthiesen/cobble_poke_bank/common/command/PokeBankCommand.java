@@ -70,7 +70,7 @@ public final class PokeBankCommand implements CoreCommand {
 
         tableBuilder.addSection("Database");
         tableBuilder.addRow("Database Type", databaseConfig.useMySQL ? "MySQL" : "SQLite");
-        tableBuilder.addRow("Database Connection", CobblePokeBankCommon.INSTANCE.isDatabaseAvailable() ? "§aOnline" : "§cOffline");
+        tableBuilder.addRow("Database Connection", CobblePokeBankCommon.INSTANCE.isDatabaseAvailable() ? "§aConnected" : "§cOffline");
 
         tableBuilder.addSection("Bank Configuration");
         tableBuilder.addRow("Bank Max Slots", bankConfig.maxSlots <= 0 ? "Unlimited" : String.valueOf(bankConfig.maxSlots));
@@ -80,7 +80,7 @@ public final class PokeBankCommand implements CoreCommand {
         tableBuilder.addRow("No Mythicals", bankConfig.noMythicals ? "§aEnabled" : "§cDisabled");
         tableBuilder.addRow("No Ultra Beasts", bankConfig.noUltraBeasts ? "§aEnabled" : "§cDisabled");
         tableBuilder.addRow("Official Held Items Only", bankConfig.heldItemRestrictions.officialTaggedOnly ? "§aEnabled" : "§cDisabled");
-        tableBuilder.addRow("Held Item Blacklist Entries", bankConfig.heldItemRestrictions.blacklist.size() + " §7(Use /pokebank status blacklist to view)");
+        tableBuilder.addRow("Held Item Blacklist Entries", String.valueOf(bankConfig.heldItemRestrictions.blacklist.size()));
 
         source.sendSystemMessage(tableBuilder.build());
         return 1;
