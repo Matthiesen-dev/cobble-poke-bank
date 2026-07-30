@@ -48,7 +48,7 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
         PermissionRegistry.init();
         getCommandsRegistryManager().registerCommand(PokeBankCommand.CMD);
 
-        PlatformEvents.SERVER_STARTING.subscribe(event -> prepareDatabase());
+        PlatformEvents.SERVER_STARTING.subscribe(event -> prepareDatabase(true));
         PlatformEvents.SERVER_RELOAD.subscribe(event -> reloadSystem());
         PlatformEvents.SERVER_STOPPING.subscribe(event -> shutdownDatabase());
 
@@ -69,18 +69,22 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
     public void reloadSystem() {
         loadConfigs(true);
         var dbConfig = PokeBankDatabaseConfig.toDatabaseConfig(DATABASE_CONFIG_MANAGER.getConfig());
-        try {
-            if (dbConfig.useMySQL) {
-                createInfoLog("Reloading database connection...");
-                databaseAvailable = database.reConnect(dbConfig);
+
+        createInfoLog("Reloading database connection...");
+
+        if (dbConfig.useMySQL) {
+            try {
+                prepareDatabase(false);
                 if (databaseAvailable) {
                     createInfoLog("Database connection reloaded successfully");
                 } else {
                     createErrorLog("Failed to reload database connection, please check your database configuration");
                 }
+            } catch (Exception e) {
+                createErrorLog("Failed to reload database connection", e);
             }
-        } catch (Exception e) {
-            createErrorLog("Failed to reload database connection", e);
+        } else {
+            createInfoLog("Database connection reload skipped, using SQLite");
         }
     }
 
@@ -102,13 +106,13 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
         return databaseAvailable;
     }
 
-    public void prepareDatabase() {
+    public void prepareDatabase(boolean initial) {
         long start = System.currentTimeMillis();
         createInfoLog("Preparing database...");
         try {
             DatabaseConfig config = PokeBankDatabaseConfig.toDatabaseConfig(DATABASE_CONFIG_MANAGER.getConfig());
             database = new CoreDatabase(this, config);
-            boolean connected = database.createConnection();
+            boolean connected = initial ? database.createConnection() : database.reConnect(config);
             if (!connected) {
                 createErrorLog("Failed to connect to database");
                 return;
