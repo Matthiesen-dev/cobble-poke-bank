@@ -38,10 +38,18 @@ public final class PokemonUtility {
     }
 
     private static MutableComponent customNameBuilder(Pokemon pokemon) {
-        return pokemon.getShiny() ?
-                pokemon.getSpecies().getTranslatedName().copy().withStyle(ChatFormatting.GRAY)
-                        .append(Component.literal(" ★").withStyle(ChatFormatting.GOLD)) :
-                pokemon.getSpecies().getTranslatedName().copy().withStyle(ChatFormatting.GRAY);
+        MutableComponent component = pokemon.getSpecies().getTranslatedName().copy().withStyle(ChatFormatting.GRAY);
+        if (pokemon.getShiny()) {
+            component.append(Component.literal(" ★").withStyle(ChatFormatting.GOLD));
+        }
+
+        // Append the gender symbol to the name if the Pokemon has a gender
+        if (pokemon.getGender() != Gender.GENDERLESS) {
+            component.append(Component.literal(" " + parseShowdownGender(pokemon.getGender()))
+                    .withStyle(getGenderColor(pokemon.getGender())));
+        }
+
+        return component;
     }
 
     private static String parseShowdownGender(Gender gender) {
@@ -83,9 +91,6 @@ public final class PokemonUtility {
                         .append(Component.literal(
                         pokemon.heldItem().isEmpty() ? "No held item" : pokemon.heldItem().getDisplayName().getString()
                 ).withStyle(ChatFormatting.WHITE)),
-                Component.literal("Gender: ").withStyle(ChatFormatting.LIGHT_PURPLE)
-                        .append(Component.literal(parseShowdownGender(pokemon.getGender())
-                ).withStyle(getGenderColor(pokemon.getGender()))),
                 Component.literal("Nature: ").withStyle(ChatFormatting.YELLOW)
                         .append(LocalizationUtilsKt.lang(pokemon.getNature().getDisplayName().replace("cobblemon.", ""))
                         .withStyle(ChatFormatting.WHITE)),
