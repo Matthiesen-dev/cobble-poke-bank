@@ -70,7 +70,7 @@ public final class PokeBankCommand implements CoreCommand {
 
         tableBuilder.addSection("Database");
         tableBuilder.addRow("Database Type", databaseConfig.useMySQL ? "MySQL" : "SQLite");
-        tableBuilder.addRow("Database Connection", CobblePokeBankCommon.INSTANCE.isDatabaseAvailable() ? "§aConnected" : "§cOffline");
+        tableBuilder.addRow("Database Status", CobblePokeBankCommon.INSTANCE.isDatabaseAvailable() ? "§aConnected" : "§cOffline");
 
         tableBuilder.addSection("Bank Configuration");
         tableBuilder.addRow("Bank Max Slots", bankConfig.maxSlots <= 0 ? "Unlimited" : String.valueOf(bankConfig.maxSlots));
