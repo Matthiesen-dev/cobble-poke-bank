@@ -4,7 +4,9 @@ import ca.landonjw.gooeylibs2.api.UIManager;
 import ca.landonjw.gooeylibs2.api.button.Button;
 import ca.landonjw.gooeylibs2.api.button.GooeyButton;
 import com.cobblemon.mod.common.pokemon.Pokemon;
+import dev.matthiesen.cobble_poke_bank.common.CobblePokeBankCommon;
 import dev.matthiesen.cobble_poke_bank.common.database.repository.PokemonBankRepository;
+import dev.matthiesen.cobble_poke_bank.common.utility.ChatHelper;
 import dev.matthiesen.cobble_poke_bank.common.utility.MenuUtilities;
 import dev.matthiesen.cobble_poke_bank.common.utility.PokemonUtility;
 import net.minecraft.network.chat.Component;
@@ -40,13 +42,14 @@ public final class UserBankScreen extends AbstractUserScreen {
 
     private Button buildBankEntryButton(PokemonBankRepository.PokemonBankEntry entry) {
         Pokemon pokemon;
+        var messagesConfig = CobblePokeBankCommon.INSTANCE.getMessagesConfig();
         try {
             pokemon = PokemonUtility.pokemonFromJson(entry.pokemon_json_data(), getPlayer().level().registryAccess());
         } catch (Exception exception) {
             return GooeyButton.builder()
                     .display(MenuUtilities.getInvalidEntryItem())
                     .onClick(action -> action.getPlayer().displayClientMessage(
-                            Component.literal("[CobblePokeBank] Invalid Pokemon entry. Check server logs."),
+                            ChatHelper.buildChatMessage(messagesConfig.databaseMessages.invalidPokemonData),
                             false
                     ))
                     .build();

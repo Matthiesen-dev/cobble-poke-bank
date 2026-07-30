@@ -8,13 +8,13 @@ import dev.matthiesen.cobble_poke_bank.common.CobblePokeBankCommon;
 import dev.matthiesen.cobble_poke_bank.common.config.MainConfig;
 import dev.matthiesen.cobble_poke_bank.common.config.PokeBankDatabaseConfig;
 import dev.matthiesen.cobble_poke_bank.common.menu.MainMenuScreen;
+import dev.matthiesen.cobble_poke_bank.common.utility.ChatHelper;
 import dev.matthiesen.matthiesen_core.common.api.command.CoreCommand;
 import dev.matthiesen.matthiesen_core.common.utility.chat.ChatTableBuilder;
 import dev.matthiesen.matthiesen_core.common.utility.item.ItemDecoder;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -43,8 +43,9 @@ public final class PokeBankCommand implements CoreCommand {
     }
 
     private int action(CommandContext<CommandSourceStack> context) {
+        var messagesConfig = CobblePokeBankCommon.INSTANCE.getMessagesConfig();
         if (!CobblePokeBankCommon.INSTANCE.isDatabaseAvailable()) {
-            context.getSource().sendFailure(Component.literal("Database is not available. Please try again later."));
+            context.getSource().sendSystemMessage(ChatHelper.buildChatMessage(messagesConfig.commandMessages.databaseUnavailable));
             return 0;
         }
 
@@ -53,7 +54,7 @@ public final class PokeBankCommand implements CoreCommand {
             player = context.getSource().getPlayerOrException();
         } catch (CommandSyntaxException exception) {
             CobblePokeBankCommon.INSTANCE.createErrorLog("Failed to find executing player for pokebank command", exception);
-            context.getSource().sendFailure(Component.literal("Failed to find executing player."));
+            context.getSource().sendSystemMessage(ChatHelper.buildChatMessage(messagesConfig.commandMessages.playerNotFound));
             return 0;
         }
 
@@ -89,11 +90,12 @@ public final class PokeBankCommand implements CoreCommand {
     private int statusBlacklist(CommandContext<CommandSourceStack> context) {
         CommandSourceStack source = context.getSource();
         MainConfig.Bank bankConfig = CobblePokeBankCommon.INSTANCE.getConfig().bank;
+        var messagesConfig = CobblePokeBankCommon.INSTANCE.getMessagesConfig();
 
         ChatTableBuilder tableBuilder = new ChatTableBuilder("Cobble Poke Bank Held Item Blacklist");
 
         if (bankConfig.heldItemRestrictions.blacklist.isEmpty()) {
-            source.sendSystemMessage(Component.literal("No held items are blacklisted."));
+            source.sendSystemMessage(ChatHelper.buildChatMessage(messagesConfig.commandMessages.noBlacklistedItems));
         } else {
             tableBuilder.addSection("Blacklisted Held Items");
             for (String item : bankConfig.heldItemRestrictions.blacklist) {

@@ -13,6 +13,7 @@ import dev.matthiesen.cobble_poke_bank.common.CobblePokeBankCommon;
 import dev.matthiesen.cobble_poke_bank.common.config.MainConfig;
 import dev.matthiesen.cobble_poke_bank.common.database.repository.PokemonBankRepository;
 import dev.matthiesen.cobble_poke_bank.common.database.service.DatabaseServices;
+import dev.matthiesen.cobble_poke_bank.common.utility.ChatHelper;
 import dev.matthiesen.cobble_poke_bank.common.utility.MenuUtilities;
 import dev.matthiesen.cobble_poke_bank.common.utility.ModTags;
 import dev.matthiesen.cobble_poke_bank.common.utility.PokemonUtility;
@@ -104,14 +105,15 @@ public final class ConfirmationScreen {
     }
 
     private void depositAsync() {
+        var messagesConfig = CobblePokeBankCommon.INSTANCE.getMessagesConfig();
         Pokemon pokemon = findPokemonInPc();
         if (pokemon == null) {
-            player.displayClientMessage(Component.literal("[CobblePokeBank] Pokemon is no longer in your PC."), false);
+            player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.depositMessages.pokemonMissing), false);
             return;
         }
         String transferValidationMessage = validatePokemonForTransfer(pokemon, TransferDirection.DEPOSIT);
         if (transferValidationMessage != null) {
-            player.displayClientMessage(Component.literal(transferValidationMessage), false);
+            player.displayClientMessage(ChatHelper.buildChatMessage(transferValidationMessage), false);
             return;
         }
 
@@ -131,15 +133,15 @@ public final class ConfirmationScreen {
         saveFuture.whenComplete((saved, throwable) -> runOnServerThread(() -> {
             if (throwable != null) {
                 CobblePokeBankCommon.INSTANCE.createErrorLog("Failed to store Pokemon in bank asynchronously", throwable);
-                player.displayClientMessage(Component.literal("[CobblePokeBank] Failed to save Pokemon to bank."), false);
+                player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.depositMessages.failedToSave), false);
                 return;
             }
 
             if (!saved) {
                 if (maxSlots > 0) {
-                    player.displayClientMessage(Component.literal("[CobblePokeBank] Your bank is full."), false);
+                    player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.depositMessages.bankFull), false);
                 } else {
-                    player.displayClientMessage(Component.literal("[CobblePokeBank] Failed to save Pokemon to bank."), false);
+                    player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.depositMessages.failedToSave), false);
                 }
                 return;
             }
@@ -147,18 +149,19 @@ public final class ConfirmationScreen {
             Pokemon latestPokemon = findPokemonInPc();
             if (latestPokemon == null || !Cobblemon.INSTANCE.getStorage().getPC(player).remove(latestPokemon)) {
                 DatabaseServices.ASYNC_POKE_BANK.deleteBankEntry(userUUID, pokemonUUIDString);
-                player.displayClientMessage(Component.literal("[CobblePokeBank] Failed to remove Pokemon from PC."), false);
+                player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.depositMessages.pcRemovalFailed), false);
                 return;
             }
 
-            player.displayClientMessage(Component.literal("[CobblePokeBank] Pokemon deposited into your bank."), false);
+            player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.depositMessages.pokemonDeposited), false);
             UIManager.openUIForcefully(player, new UserPCScreen(player).getPage());
         }));
     }
 
     private void withdrawAsync() {
+        var messagesConfig = CobblePokeBankCommon.INSTANCE.getMessagesConfig();
         if (bankEntry == null) {
-            player.displayClientMessage(Component.literal("[CobblePokeBank] Pokemon is no longer in your bank."), false);
+            player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.withdrawMessages.pokemonMissing), false);
             return;
         }
 
@@ -167,13 +170,13 @@ public final class ConfirmationScreen {
             pokemon = PokemonUtility.pokemonFromJson(bankEntry.pokemon_json_data(), player.level().registryAccess());
         } catch (Exception exception) {
             CobblePokeBankCommon.INSTANCE.createErrorLog("Failed to deserialize bank Pokemon entry", exception);
-            player.displayClientMessage(Component.literal("[CobblePokeBank] Failed to read Pokemon data."), false);
+            player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.withdrawMessages.failedToReadData), false);
             return;
         }
 
         String transferValidationMessage = validatePokemonForTransfer(pokemon, TransferDirection.WITHDRAW);
         if (transferValidationMessage != null) {
-            player.displayClientMessage(Component.literal(transferValidationMessage), false);
+            player.displayClientMessage(ChatHelper.buildChatMessage(transferValidationMessage), false);
             return;
         }
 
@@ -184,12 +187,12 @@ public final class ConfirmationScreen {
                 .whenComplete((deleted, throwable) -> runOnServerThread(() -> {
                     if (throwable != null) {
                         CobblePokeBankCommon.INSTANCE.createErrorLog("Failed to delete Pokemon from bank asynchronously", throwable);
-                        player.displayClientMessage(Component.literal("[CobblePokeBank] Failed to remove Pokemon from bank."), false);
+                        player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.withdrawMessages.failedToRemoveFromBank), false);
                         return;
                     }
 
                     if (!deleted) {
-                        player.displayClientMessage(Component.literal("[CobblePokeBank] Pokemon is no longer in your bank."), false);
+                        player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.withdrawMessages.pokemonMissing), false);
                         return;
                     }
 
@@ -199,11 +202,11 @@ public final class ConfirmationScreen {
                                 pokemonUUIDString,
                                 bankEntry.pokemon_json_data()
                         );
-                        player.displayClientMessage(Component.literal("[CobblePokeBank] Your PC is full."), false);
+                        player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.withdrawMessages.pcFull), false);
                         return;
                     }
 
-                    player.displayClientMessage(Component.literal("[CobblePokeBank] Pokemon moved into your PC."), false);
+                    player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.withdrawMessages.pokemonDeposited), false);
                     BankMenuNavigator.openBankMenuAsync(player);
                 }));
     }
@@ -252,47 +255,48 @@ public final class ConfirmationScreen {
     }
 
     private String directionToLocation(TransferDirection direction) {
+        var messagesConfig = CobblePokeBankCommon.INSTANCE.getMessagesConfig();
         return switch (direction) {
-            case DEPOSIT -> "bank";
-            case WITHDRAW -> "Server";
+            case DEPOSIT -> messagesConfig.locationLabels.deposit;
+            case WITHDRAW -> messagesConfig.locationLabels.withdraw;
         };
     }
 
     private String validatePokemonForTransfer(Pokemon pokemon, TransferDirection direction) {
         MainConfig.Bank bankConfig = CobblePokeBankCommon.INSTANCE.getConfig().bank;
+        var messagesConfig = CobblePokeBankCommon.INSTANCE.getMessagesConfig();
         ItemStack heldItem = pokemon.heldItem();
         String location = directionToLocation(direction);
 
         if (!heldItem.isEmpty()) {
             if (bankConfig.noHeldItems) {
-                return "[CobblePokeBank] Pokemon with held items are not allowed in the " + location + ".";
+                return messagesConfig.validationMessages.noHeldItems.replace("%s", location);
             }
 
             if (bankConfig.heldItemRestrictions.officialTaggedOnly && !heldItem.is(ModTags.COBBLEMON_HELD_ITEMS)) {
-                return "[CobblePokeBank] Only official held items are allowed in the " + location + ".";
+                return messagesConfig.validationMessages.officialHeldItemsOnly.replace("%s", location);
             }
 
             List<Item> blacklistedItems = MainConfig.parseHeldItemBlacklist(bankConfig.heldItemRestrictions.blacklist);
             if (blacklistedItems.contains(heldItem.getItem())) {
-                return "[CobblePokeBank] This held item is blacklisted in the " + location + ".";
-
+                return messagesConfig.validationMessages.blacklistedHeldItem.replace("%s", location);
             }
         }
 
         if (bankConfig.noLegendaries && pokemon.isLegendary()) {
-            return "[CobblePokeBank] Legendary Pokemon are not allowed in the " + location + ".";
+            return messagesConfig.validationMessages.noLegendaries.replace("%s", location);
         }
 
         if (bankConfig.noMythicals && pokemon.isMythical()) {
-            return "[CobblePokeBank] Mythical Pokemon are not allowed in the " + location + ".";
+            return messagesConfig.validationMessages.noMythicals.replace("%s", location);
         }
 
         if (bankConfig.noUltraBeasts && pokemon.isUltraBeast()) {
-            return "[CobblePokeBank] Ultra Beasts are not allowed in the " + location + ".";
+            return messagesConfig.validationMessages.noUltraBeasts.replace("%s", location);
         }
 
         if (bankConfig.noFainted && pokemon.isFainted()) {
-            return "[CobblePokeBank] Fainted Pokemon are not allowed in the " + location + ".";
+            return messagesConfig.validationMessages.noFainted.replace("%s", location);
         }
 
         return null;

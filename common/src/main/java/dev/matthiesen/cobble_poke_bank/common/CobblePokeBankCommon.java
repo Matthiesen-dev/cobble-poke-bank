@@ -1,6 +1,7 @@
 package dev.matthiesen.cobble_poke_bank.common;
 
 import dev.matthiesen.cobble_poke_bank.common.command.PokeBankCommand;
+import dev.matthiesen.cobble_poke_bank.common.config.MessagesConfig;
 import dev.matthiesen.cobble_poke_bank.common.config.PokeBankDatabaseConfig;
 import dev.matthiesen.cobble_poke_bank.common.config.MainConfig;
 import dev.matthiesen.cobble_poke_bank.common.database.service.DatabaseServices;
@@ -25,6 +26,8 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
             INSTANCE.createConfigManager(PokeBankDatabaseConfig.class, "database");
     private static final ConfigManager<MainConfig> CONFIG_MANAGER =
             INSTANCE.createConfigManager(MainConfig.class, "config");
+    private static final ConfigManager<MessagesConfig> MESSAGES_CONFIG =
+            INSTANCE.createConfigManager(MessagesConfig.class, "messages");
 
     private CoreDatabase database;
     private boolean databaseAvailable = false;
@@ -42,6 +45,7 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
         super.initialize();
         DATABASE_CONFIG_MANAGER.loadConfig();
         CONFIG_MANAGER.loadConfig();
+        MESSAGES_CONFIG.loadConfig();
 
         PermissionRegistry.init();
         getCommandsRegistryManager().registerCommand(PokeBankCommand.CMD);
@@ -55,6 +59,7 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
         PlatformEvents.SERVER_RELOAD.subscribe(event -> {
             DATABASE_CONFIG_MANAGER.loadConfig();
             CONFIG_MANAGER.loadConfig();
+            MESSAGES_CONFIG.loadConfig();
             createInfoLog("Reloaded configs");
         });
 
@@ -114,5 +119,9 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
 
     public boolean checkPermission(CommandSourceStack source, Permission permission) {
         return PermissionRegistry.checkPermission(source, permission);
+    }
+
+    public MessagesConfig getMessagesConfig() {
+        return MESSAGES_CONFIG.getConfig();
     }
 }
