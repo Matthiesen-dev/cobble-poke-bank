@@ -43,34 +43,37 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
 
     public void initialize() {
         super.initialize();
-        DATABASE_CONFIG_MANAGER.loadConfig();
-        CONFIG_MANAGER.loadConfig();
-        MESSAGES_CONFIG.loadConfig();
+        loadConfigs(false);
 
         PermissionRegistry.init();
         getCommandsRegistryManager().registerCommand(PokeBankCommand.CMD);
 
-        PlatformEvents.SERVER_STARTING.subscribe(event -> {
-            boolean databaseReady = prepareDatabase();
-            if (!databaseReady) return;
-            databaseAvailable = true;
-        });
-
-        PlatformEvents.SERVER_RELOAD.subscribe(event -> {
-            DATABASE_CONFIG_MANAGER.loadConfig();
-            CONFIG_MANAGER.loadConfig();
-            MESSAGES_CONFIG.loadConfig();
-            createInfoLog("Reloaded configs");
-        });
-
-        PlatformEvents.SERVER_STOPPING.subscribe(event -> {
-            if (database != null) {
-                database.close();
-                databaseAvailable = false;
-            }
-        });
+        PlatformEvents.SERVER_STARTING.subscribe(event -> prepareDatabase());
+        PlatformEvents.SERVER_RELOAD.subscribe(event -> loadConfigs(true));
+        PlatformEvents.SERVER_STOPPING.subscribe(event -> shutdownDatabase());
 
         createInfoLog("Initialized");
+    }
+
+    public void loadConfigs(boolean reload) {
+        DATABASE_CONFIG_MANAGER.loadConfig();
+        CONFIG_MANAGER.loadConfig();
+        MESSAGES_CONFIG.loadConfig();
+        if (reload) {
+            createInfoLog("Reloaded configs");
+        } else {
+            createInfoLog("Loaded configs");
+        }
+    }
+
+    public void shutdownDatabase() {
+        if (database != null) {
+            database.close();
+            databaseAvailable = false;
+            createInfoLog("Database connection closed");
+        } else {
+            createInfoLog("No database connection to close");
+        }
     }
 
     public CoreDatabase getDatabase() {
@@ -81,7 +84,7 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
         return databaseAvailable;
     }
 
-    public boolean prepareDatabase() {
+    public void prepareDatabase() {
         long start = System.currentTimeMillis();
         createInfoLog("Preparing database...");
         try {
@@ -90,11 +93,11 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
             boolean connected = database.createConnection();
             if (!connected) {
                 createErrorLog("Failed to connect to database");
-                return false;
+                return;
             }
         } catch (Exception e) {
             createErrorLog("Failed to connect to database", e);
-            return false;
+            return;
         }
 
         DatabaseServices.POKE_BANK.createTable();
@@ -102,7 +105,7 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
 
         long end = System.currentTimeMillis();
         createInfoLog("Database prepared in " + (end - start) + "ms");
-        return true;
+        databaseAvailable = true;
     }
 
     public MainConfig getConfig() {
