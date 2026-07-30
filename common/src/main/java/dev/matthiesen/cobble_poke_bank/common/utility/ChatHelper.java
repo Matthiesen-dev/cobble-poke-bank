@@ -10,11 +10,7 @@ public final class ChatHelper {
         return CobblePokeBankCommon.INSTANCE.getMessagesConfig().prefix;
     }
 
-    public static Component getChatPrefixComponent() {
-        return Component.literal(getChatPrefix());
-    }
-
     public static Component buildChatMessage(String message) {
-        return Component.empty().append(getChatPrefixComponent()).append(Component.literal(message));
+        return Component.empty().append(Component.literal(getChatPrefix())).append(Component.literal(message));
     }
 }
