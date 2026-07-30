@@ -72,6 +72,11 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
         if (dbConfig.useMySQL) {
             createInfoLog("Reloading database connection...");
             databaseAvailable = database.reConnect(dbConfig);
+            if (databaseAvailable) {
+                createInfoLog("Database connection reloaded successfully");
+            } else {
+                createErrorLog("Failed to reload database connection, please check your database configuration");
+            }
         }
     }
 
