@@ -110,7 +110,14 @@ public final class MainConfig {
          * permission level defined in the PermissionLevel enum.
          */
         @SerializedName("command.pokebank")
-        public int COMMAND_POKEBANK_PERMISSION_LEVEL = PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS.getLevel();
+        public int COMMAND_POKEBANK_PERMISSION_LEVEL = PermissionLevel.NONE.getLevel();
+
+        /**
+         * The permission level required to use the /pokebank status command. This value is an integer that corresponds to a specific
+         * permission level defined in the PermissionLevel enum.
+         */
+        @SerializedName("command.pokebank.status")
+        public int COMMAND_POKEBANK_STATUS_PERMISSION_LEVEL = PermissionLevel.ALL_COMMANDS.getLevel();
     }
 
     /**

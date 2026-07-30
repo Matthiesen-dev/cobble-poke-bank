@@ -104,6 +104,10 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
         return CONFIG_MANAGER.getConfig();
     }
 
+    public PokeBankDatabaseConfig getDatabaseConfig() {
+        return DATABASE_CONFIG_MANAGER.getConfig();
+    }
+
     public PermissionRegistry.Permissions getPermissions() {
         return PermissionRegistry.getPermissions();
     }
