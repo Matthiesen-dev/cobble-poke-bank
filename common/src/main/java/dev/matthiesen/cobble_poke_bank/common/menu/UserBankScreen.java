@@ -8,7 +8,7 @@ import dev.matthiesen.cobble_poke_bank.common.CobblePokeBankCommon;
 import dev.matthiesen.cobble_poke_bank.common.database.repository.PokemonBankRepository;
 import dev.matthiesen.cobble_poke_bank.common.utility.ChatHelper;
 import dev.matthiesen.cobble_poke_bank.common.utility.MenuUtilities;
-import dev.matthiesen.cobble_poke_bank.common.utility.PokemonUtility;
+import dev.matthiesen.cobble_poke_bank.common.utility.PokeUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -44,7 +44,7 @@ public final class UserBankScreen extends AbstractUserScreen {
         Pokemon pokemon;
         var messagesConfig = CobblePokeBankCommon.INSTANCE.getMessagesConfig();
         try {
-            pokemon = PokemonUtility.pokemonFromJson(entry.pokemon_json_data(), getPlayer().level().registryAccess());
+            pokemon = PokeUtil.fromJson(entry.pokemon_json_data(), getPlayer().level().registryAccess()).getPokemon();
         } catch (Exception exception) {
             return GooeyButton.builder()
                     .display(MenuUtilities.getInvalidEntryItem())
@@ -56,7 +56,7 @@ public final class UserBankScreen extends AbstractUserScreen {
         }
 
         return GooeyButton.builder()
-                .display(PokemonUtility.pokemonToItem(pokemon))
+                .display(new PokeUtil(pokemon).toItem())
                 .onClick(action -> UIManager.openUIForcefully(
                         getPlayer(),
                         ConfirmationScreen.withdraw(getPlayer(), entry).getPage()

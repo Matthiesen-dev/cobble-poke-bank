@@ -14,48 +14,59 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public final class PokemonUtility {
+public final class PokeUtil {
+    private final Pokemon pokemon;
+    private final Gender gender;
 
-    private PokemonUtility() {}
+    public PokeUtil(@NotNull Pokemon pokemon) {
+        this.pokemon = pokemon;
+        this.gender = pokemon.getGender();
+    }
 
-    public static JsonObject pokemonToJson(Pokemon pokemon, RegistryAccess registryAccess) {
+    public Pokemon getPokemon() {
+        return pokemon;
+    }
+
+    public static PokeUtil fromJson(JsonObject json, RegistryAccess registryAccess) {
+        Pokemon pokemon = new Pokemon();
+        pokemon.loadFromJSON(registryAccess, json);
+        return new PokeUtil(pokemon);
+    }
+
+    public JsonObject toJson(RegistryAccess registryAccess) {
         return pokemon.saveToJSON(registryAccess, new JsonObject());
     }
 
-    public static Pokemon pokemonFromJson(JsonObject json, RegistryAccess registryAccess) {
-        Pokemon pokemon = new Pokemon();
-        return pokemon.loadFromJSON(registryAccess, json);
-    }
-
-    public static ItemStack pokemonToItem(Pokemon pokemon) {
+    public ItemStack toItem() {
         return new ItemBuilder(PokemonItem.from(pokemon, 1))
                 .hideAdditional()
-                .addLore(loreBuilder(pokemon))
-                .setCustomName(customNameBuilder(pokemon))
+                .addLore(getLore())
+                .setCustomName(customNameBuilder())
                 .build();
     }
 
-    private static MutableComponent customNameBuilder(Pokemon pokemon) {
+    private MutableComponent customNameBuilder() {
         MutableComponent component = pokemon.getSpecies().getTranslatedName().copy().withStyle(ChatFormatting.GRAY);
         if (pokemon.getShiny()) {
             component.append(Component.literal(" ★").withStyle(ChatFormatting.GOLD));
         }
 
         // Append the gender symbol to the name if the Pokemon has a gender
-        if (pokemon.getGender() != Gender.GENDERLESS) {
-            component.append(Component.literal(" " + parseShowdownGender(pokemon.getGender()))
-                    .withStyle(getGenderColor(pokemon.getGender())));
+        if (gender != Gender.GENDERLESS) {
+            component.append(Component.literal(" " + parseShowdownGender())
+                    .withStyle(getGenderColor()));
         }
 
         return component;
     }
 
-    private static String parseShowdownGender(Gender gender) {
+    private String parseShowdownGender() {
         return switch (gender) {
             case MALE -> "♂";
             case FEMALE -> "♀";
@@ -63,7 +74,7 @@ public final class PokemonUtility {
         };
     }
 
-    private static ChatFormatting getGenderColor(Gender gender) {
+    private ChatFormatting getGenderColor() {
         return switch (gender) {
             case MALE -> ChatFormatting.BLUE;
             case FEMALE -> ChatFormatting.LIGHT_PURPLE;
@@ -71,9 +82,7 @@ public final class PokemonUtility {
         };
     }
 
-    private record PokemonMoves(String moveOne, String moveTwo, String moveThree, String moveFour) {}
-
-    private static PokemonMoves getMoves(Pokemon pokemon) {
+    private List<MutableComponent> getMovesComponents() {
         String moveOne = !pokemon.getMoveSet().getMoves().isEmpty() ?
                 Objects.requireNonNull(pokemon.getMoveSet().get(0)).getDisplayName().getString() : "Empty";
         String moveTwo = pokemon.getMoveSet().getMoves().size() >= 2 ?
@@ -82,21 +91,16 @@ public final class PokemonUtility {
                 Objects.requireNonNull(pokemon.getMoveSet().get(2)).getDisplayName().getString() : "Empty";
         String moveFour = pokemon.getMoveSet().getMoves().size() >= 4 ?
                 Objects.requireNonNull(pokemon.getMoveSet().get(3)).getDisplayName().getString() : "Empty";
-        return new PokemonMoves(moveOne, moveTwo, moveThree, moveFour);
-    }
-
-    private static List<MutableComponent> getMovesComponents(Pokemon pokemon) {
-        PokemonMoves moves = getMoves(pokemon);
         return List.of(
                 Component.literal("Moves: ").withStyle(ChatFormatting.DARK_GREEN),
-                Component.literal(" ").append(Component.literal(moves.moveOne()).withStyle(ChatFormatting.WHITE)),
-                Component.literal(" ").append(Component.literal(moves.moveTwo()).withStyle(ChatFormatting.WHITE)),
-                Component.literal(" ").append(Component.literal(moves.moveThree()).withStyle(ChatFormatting.WHITE)),
-                Component.literal(" ").append(Component.literal(moves.moveFour()).withStyle(ChatFormatting.WHITE))
+                Component.literal(" ").append(Component.literal(moveOne).withStyle(ChatFormatting.WHITE)),
+                Component.literal(" ").append(Component.literal(moveTwo).withStyle(ChatFormatting.WHITE)),
+                Component.literal(" ").append(Component.literal(moveThree).withStyle(ChatFormatting.WHITE)),
+                Component.literal(" ").append(Component.literal(moveFour).withStyle(ChatFormatting.WHITE))
         );
     }
 
-    private static ChatFormatting getStatColor(Stats stat) {
+    private ChatFormatting getStatColor(Stats stat) {
         return switch (stat) {
             case HP -> ChatFormatting.RED;
             case ATTACK -> ChatFormatting.BLUE;
@@ -109,7 +113,7 @@ public final class PokemonUtility {
         };
     }
 
-    private static String getStatLabel(Stats stat) {
+    private String getStatLabel(Stats stat) {
         return switch (stat) {
             case HP -> "HP";
             case ATTACK -> "Atk";
@@ -122,7 +126,7 @@ public final class PokemonUtility {
         };
     }
 
-    private static List<MutableComponent> getStatComponents(PokemonStats stats, String label, ChatFormatting labelColor) {
+    private List<MutableComponent> getStatComponents(PokemonStats stats, String label, ChatFormatting labelColor) {
         List<MutableComponent> components = new ArrayList<>();
 
         components.add(Component.literal(label + ": ").withStyle(labelColor));
@@ -157,11 +161,11 @@ public final class PokemonUtility {
         return components;
     }
 
-    private static Component[] buildComponentList(List<Component> components) {
+    private Component[] buildComponentList(List<Component> components) {
         return components.toArray(new Component[0]);
     }
 
-    private static Component[] loreBuilder(Pokemon pokemon) {
+    private Component[] getLore() {
         String pokeball = pokemon.getCaughtBall().item().getDefaultInstance().getDisplayName().getString();
         String level = String.valueOf(pokemon.getLevel());
         String nickname = pokemon.getNickname() != null ? pokemon.getNickname().getString() : "No nickname";
@@ -171,7 +175,7 @@ public final class PokemonUtility {
         MutableComponent ability = LocalizationUtilsKt.lang(pokemon.getAbility().getDisplayName().replace("cobblemon.", ""));
         var ivs = getStatComponents(pokemon.getIvs(), "IVs", ChatFormatting.LIGHT_PURPLE);
         var evs = getStatComponents(pokemon.getEvs(), "EVs", ChatFormatting.DARK_AQUA);
-        var moves = getMovesComponents(pokemon);
+        var moves = getMovesComponents();
         String form = pokemon.getForm().getName();
 
         List<Component> pokeLore = new ArrayList<>();

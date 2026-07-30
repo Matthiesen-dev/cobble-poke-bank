@@ -11,7 +11,9 @@ import dev.matthiesen.cobble_poke_bank.common.config.PokeBankDatabaseConfig;
 import dev.matthiesen.cobble_poke_bank.common.menu.MainMenuScreen;
 import dev.matthiesen.cobble_poke_bank.common.utility.ChatHelper;
 import dev.matthiesen.matthiesen_core.common.api.command.CoreCommand;
+import dev.matthiesen.matthiesen_core.common.api.permissions.Permission;
 import dev.matthiesen.matthiesen_core.common.utility.chat.ChatTableBuilder;
+import dev.matthiesen.matthiesen_core.common.utility.commands.CommandBuilder;
 import dev.matthiesen.matthiesen_core.common.utility.item.ItemDecoder;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -20,27 +22,37 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
+import java.util.function.Predicate;
+
 public final class PokeBankCommand implements CoreCommand {
     public static final PokeBankCommand CMD = new PokeBankCommand();
+
+    public static Predicate<CommandSourceStack> requirePredicate(Permission level) {
+        return source -> CobblePokeBankCommon.INSTANCE.checkPermission(source, level);
+    }
 
     @Override
     public void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registry, Commands.CommandSelection context) {
         var permissions = CobblePokeBankCommon.INSTANCE.getPermissions();
-        dispatcher.register(
-                Commands.literal("pokebank")
-                        .requires(src -> CobblePokeBankCommon.INSTANCE.checkPermission(src, permissions.POKEBANK_PERMISSION))
-                        .executes(this::action)
-                        .then(
-                                Commands.literal("status")
-                                        .requires(src -> CobblePokeBankCommon.INSTANCE.checkPermission(src, permissions.POKEBANK_STATUS_PERMISSION))
-                                        .executes(this::status)
-                                        .then(
-                                                Commands.literal("blacklist")
-                                                        .requires(src -> CobblePokeBankCommon.INSTANCE.checkPermission(src, permissions.POKEBANK_STATUS_PERMISSION))
-                                                        .executes(this::statusBlacklist)
-                                        )
-                        )
-        );
+
+        // /pokebank status blacklist
+        var blacklistCMD = CommandBuilder.create("blacklist")
+                .requires(requirePredicate(permissions.POKEBANK_STATUS_PERMISSION))
+                .executes(this::statusBlacklist);
+
+        // /pokebank status
+        var statusCMD = CommandBuilder.create("status")
+                .requires(requirePredicate(permissions.POKEBANK_STATUS_PERMISSION))
+                .executes(this::status)
+                .then(blacklistCMD);
+
+        // /pokebank
+        var pokeBankCMD = CommandBuilder.create("pokebank")
+                .requires(requirePredicate(permissions.POKEBANK_PERMISSION))
+                .executes(this::action)
+                .then(statusCMD);
+
+        dispatcher.register(pokeBankCMD.build());
     }
 
     private int action(CommandContext<CommandSourceStack> context) {

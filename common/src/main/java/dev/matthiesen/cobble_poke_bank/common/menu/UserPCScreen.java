@@ -5,7 +5,7 @@ import ca.landonjw.gooeylibs2.api.button.Button;
 import ca.landonjw.gooeylibs2.api.button.GooeyButton;
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import dev.matthiesen.cobble_poke_bank.common.utility.PokemonUtility;
+import dev.matthiesen.cobble_poke_bank.common.utility.PokeUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -25,7 +25,7 @@ public final class UserPCScreen extends AbstractUserScreen {
         for (Pokemon pokemon : pc) {
             if (pokemon == null) continue;
             Button button = GooeyButton.builder()
-                    .display(PokemonUtility.pokemonToItem(pokemon))
+                    .display(new PokeUtil(pokemon).toItem())
                     .onClick(action -> UIManager.openUIForcefully(
                             getPlayer(),
                             ConfirmationScreen.deposit(getPlayer(), pokemon.getUuid()).getPage()

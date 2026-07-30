@@ -13,10 +13,7 @@ import dev.matthiesen.cobble_poke_bank.common.CobblePokeBankCommon;
 import dev.matthiesen.cobble_poke_bank.common.config.MainConfig;
 import dev.matthiesen.cobble_poke_bank.common.database.repository.PokemonBankRepository;
 import dev.matthiesen.cobble_poke_bank.common.database.service.DatabaseServices;
-import dev.matthiesen.cobble_poke_bank.common.utility.ChatHelper;
-import dev.matthiesen.cobble_poke_bank.common.utility.MenuUtilities;
-import dev.matthiesen.cobble_poke_bank.common.utility.ModTags;
-import dev.matthiesen.cobble_poke_bank.common.utility.PokemonUtility;
+import dev.matthiesen.cobble_poke_bank.common.utility.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -117,7 +114,7 @@ public final class ConfirmationScreen {
             return;
         }
 
-        JsonObject jsonObject = PokemonUtility.pokemonToJson(pokemon, player.level().registryAccess());
+        JsonObject jsonObject = new PokeUtil(pokemon).toJson(player.level().registryAccess());
         String userUUID = player.getUUID().toString();
         String pokemonUUIDString = pokemon.getUuid().toString();
         int maxSlots = CobblePokeBankCommon.INSTANCE.getConfig().bank.maxSlots;
@@ -167,7 +164,7 @@ public final class ConfirmationScreen {
 
         Pokemon pokemon;
         try {
-            pokemon = PokemonUtility.pokemonFromJson(bankEntry.pokemon_json_data(), player.level().registryAccess());
+            pokemon = PokeUtil.fromJson(bankEntry.pokemon_json_data(), player.level().registryAccess()).getPokemon();
         } catch (Exception exception) {
             CobblePokeBankCommon.INSTANCE.createErrorLog("Failed to deserialize bank Pokemon entry", exception);
             player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.withdrawMessages.failedToReadData), false);
@@ -214,7 +211,7 @@ public final class ConfirmationScreen {
     private ItemStack resolvePreviewItem() {
         if (direction == TransferDirection.DEPOSIT) {
             Pokemon pokemon = findPokemonInPc();
-            return pokemon != null ? PokemonUtility.pokemonToItem(pokemon) : MenuUtilities.getInvalidEntryItem();
+            return pokemon != null ? new PokeUtil(pokemon).toItem() : MenuUtilities.getInvalidEntryItem();
         }
 
         if (bankEntry == null) {
@@ -222,8 +219,8 @@ public final class ConfirmationScreen {
         }
 
         try {
-            Pokemon pokemon = PokemonUtility.pokemonFromJson(bankEntry.pokemon_json_data(), player.level().registryAccess());
-            return PokemonUtility.pokemonToItem(pokemon);
+            Pokemon pokemon = PokeUtil.fromJson(bankEntry.pokemon_json_data(), player.level().registryAccess()).getPokemon();
+            return new PokeUtil(pokemon).toItem();
         } catch (Exception exception) {
             return MenuUtilities.getInvalidEntryItem();
         }
