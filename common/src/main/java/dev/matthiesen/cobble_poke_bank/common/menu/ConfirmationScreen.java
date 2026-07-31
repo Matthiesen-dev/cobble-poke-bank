@@ -108,6 +108,7 @@ public final class ConfirmationScreen {
             player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.depositMessages.pokemonMissing), false);
             return;
         }
+        autoStripHeldItemIfNeeded(pokemon, TransferDirection.DEPOSIT);
         String transferValidationMessage = validatePokemonForTransfer(pokemon, TransferDirection.DEPOSIT);
         if (transferValidationMessage != null) {
             player.displayClientMessage(ChatHelper.buildChatMessage(transferValidationMessage), false);
@@ -171,6 +172,7 @@ public final class ConfirmationScreen {
             return;
         }
 
+        autoStripHeldItemIfNeeded(pokemon, TransferDirection.WITHDRAW);
         String transferValidationMessage = validatePokemonForTransfer(pokemon, TransferDirection.WITHDRAW);
         if (transferValidationMessage != null) {
             player.displayClientMessage(ChatHelper.buildChatMessage(transferValidationMessage), false);
@@ -257,6 +259,39 @@ public final class ConfirmationScreen {
             case DEPOSIT -> messagesConfig.locationLabels.deposit;
             case WITHDRAW -> messagesConfig.locationLabels.withdraw;
         };
+    }
+
+    /**
+     * If autoStrip is enabled and the Pokemon's held item would fail a held-item restriction,
+     * strips the item, returns it to the player's inventory (drops if full), and notifies the player.
+     */
+    private void autoStripHeldItemIfNeeded(Pokemon pokemon, TransferDirection direction) {
+        MainConfig.Bank bankConfig = CobblePokeBankCommon.INSTANCE.getConfig().bank;
+        if (!bankConfig.heldItemRestrictions.autoStrip) return;
+
+        ItemStack heldItem = pokemon.heldItem();
+        if (heldItem.isEmpty()) return;
+
+        boolean shouldStrip = bankConfig.noHeldItems
+                || (bankConfig.heldItemRestrictions.officialTaggedOnly && !heldItem.is(ModTags.COBBLEMON_HELD_ITEMS))
+                || MainConfig.parseHeldItemBlacklist(bankConfig.heldItemRestrictions.blacklist).contains(heldItem.getItem());
+
+        if (!shouldStrip) return;
+
+        ItemStack stripped = pokemon.removeHeldItem();
+        if (!stripped.isEmpty()) {
+            if (direction == TransferDirection.DEPOSIT) {
+                if (!player.addItem(stripped)) {
+                    player.drop(stripped, false);
+                }
+            }
+            var messagesConfig = CobblePokeBankCommon.INSTANCE.getMessagesConfig();
+            String location = directionToLocation(direction);
+            player.displayClientMessage(
+                    ChatHelper.buildChatMessage(messagesConfig.validationMessages.autoStrippedHeldItem.replace("%s", location)),
+                    false
+            );
+        }
     }
 
     private String validatePokemonForTransfer(Pokemon pokemon, TransferDirection direction) {

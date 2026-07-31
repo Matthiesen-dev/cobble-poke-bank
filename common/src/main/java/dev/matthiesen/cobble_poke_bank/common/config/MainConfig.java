@@ -97,6 +97,17 @@ public final class MainConfig {
          */
         @SerializedName("blacklist")
         public List<String> blacklist = List.of();
+
+        /**
+         * If true, the mod will automatically strip held items from Pokemon if Held items are not allowed, or if the Pokemon is holding a blacklisted item.
+         * NOTE: This is a destructive action and should be used with caution, as it will remove the held item from the Pokemon without any confirmation.
+         * If false, the mod will prevent the player from depositing the Pokemon into the bank if it has a held item that is not allowed, and will send a
+         * message to the player explaining why the action was prevented. This setting is useful for server administrators who want to enforce held item
+         * restrictions without causing confusion or frustration for players who may not understand why their Pokemon cannot be deposited into the bank.
+         * Default: false.
+         */
+        @SerializedName("autoStrip")
+        public boolean autoStrip = false;
     }
 
     /**

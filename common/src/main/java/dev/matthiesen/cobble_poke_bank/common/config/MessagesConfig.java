@@ -1,8 +1,12 @@
 package dev.matthiesen.cobble_poke_bank.common.config;
 
 import com.google.gson.annotations.SerializedName;
+import dev.matthiesen.matthiesen_core.common.api.text_parsers.BuiltInTextParsers;
 
 public final class MessagesConfig {
+
+    @SerializedName("textParser")
+    public String textParser = BuiltInTextParsers.VANILLA.toString();
 
     @SerializedName("prefix")
     public String prefix = "§f[§6Cobble Poke Bank§f] §r";
@@ -122,5 +126,8 @@ public final class MessagesConfig {
 
         @SerializedName("noFainted")
         public String noFainted = "§cThis Pokemon is fainted, which is not allowed in the %s.";
+
+        @SerializedName("autoStrippedHeldItem")
+        public String autoStrippedHeldItem = "§eYour Pokemon's held item has been removed as it is not allowed in the %s.";
     }
 }
