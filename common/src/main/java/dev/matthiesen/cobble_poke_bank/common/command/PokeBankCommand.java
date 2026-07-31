@@ -11,6 +11,7 @@ import dev.matthiesen.cobble_poke_bank.common.config.PokeBankDatabaseConfig;
 import dev.matthiesen.cobble_poke_bank.common.menu.MainMenuScreen;
 import dev.matthiesen.cobble_poke_bank.common.utility.ChatHelper;
 import dev.matthiesen.matthiesen_core.common.api.command.CoreCommand;
+import dev.matthiesen.matthiesen_core.common.api.events.server.ServerEvent;
 import dev.matthiesen.matthiesen_core.common.api.permissions.Permission;
 import dev.matthiesen.matthiesen_core.common.utility.chat.ChatTableBuilder;
 import dev.matthiesen.matthiesen_core.common.utility.commands.CommandBuilder;
@@ -135,7 +136,7 @@ public final class PokeBankCommand implements CoreCommand {
     private int reload(CommandContext<CommandSourceStack> context) {
         CommandSourceStack source = context.getSource();
         var messagesConfig = CobblePokeBankCommon.INSTANCE.getMessagesConfig();
-        CobblePokeBankCommon.INSTANCE.reloadSystem();
+        CobblePokeBankCommon.INSTANCE.reloadSystem(new ServerEvent.Reload());
         source.sendSystemMessage(ChatHelper.buildChatMessage(messagesConfig.commandMessages.configsReloaded));
         return 1;
     }

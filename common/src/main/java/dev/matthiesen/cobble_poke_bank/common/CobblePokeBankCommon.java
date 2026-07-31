@@ -10,6 +10,7 @@ import dev.matthiesen.libs.faststats.Token;
 import dev.matthiesen.matthiesen_core.common.AbstractCommonMod;
 import dev.matthiesen.matthiesen_core.common.api.database.config.DatabaseConfig;
 import dev.matthiesen.matthiesen_core.common.api.events.PlatformEvents;
+import dev.matthiesen.matthiesen_core.common.api.events.server.ServerEvent;
 import dev.matthiesen.matthiesen_core.common.api.permissions.Permission;
 import dev.matthiesen.matthiesen_core.common.core.database.CoreDatabase;
 import dev.matthiesen.matthiesen_core.common.utility.config.ConfigManager;
@@ -48,11 +49,15 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
         PermissionRegistry.init();
         getCommandsRegistryManager().registerCommand(PokeBankCommand.CMD);
 
-        PlatformEvents.SERVER_STARTING.subscribe(event -> prepareDatabase(true));
-        PlatformEvents.SERVER_RELOAD.subscribe(event -> reloadSystem());
-        PlatformEvents.SERVER_STOPPING.subscribe(event -> shutdownDatabase());
+        PlatformEvents.SERVER_STARTING.subscribe(this::startupDatabase);
+        PlatformEvents.SERVER_RELOAD.subscribe(this::reloadSystem);
+        PlatformEvents.SERVER_STOPPING.subscribe(this::shutdownDatabase);
 
         createInfoLog("Initialized");
+    }
+
+    public void startupDatabase(ServerEvent.Starting event) {
+        prepareDatabase(true);
     }
 
     public void loadConfigs(boolean reload) {
@@ -66,7 +71,7 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
         }
     }
 
-    public void reloadSystem() {
+    public void reloadSystem(ServerEvent.Reload event) {
         loadConfigs(true);
         var dbConfig = PokeBankDatabaseConfig.toDatabaseConfig(DATABASE_CONFIG_MANAGER.getConfig());
 
@@ -88,7 +93,7 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
         }
     }
 
-    public void shutdownDatabase() {
+    public void shutdownDatabase(ServerEvent.Stopping event) {
         if (database != null) {
             database.close();
             databaseAvailable = false;
