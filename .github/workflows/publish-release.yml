@@ -12,6 +12,8 @@ on:
 # - Cobblemon (MdwFAVRL)
 # - Matthiesen Core (sqEZOmQo)
 # - GooeyLibs (KzjvlKEN)
+# - SQLite JDBC (bTTf2DEw)
+# - MySQL JDBC (2UdFEObs) - Optional
 
 jobs:
   publish:
@@ -31,7 +33,9 @@ jobs:
         [
           {"project_id":"MdwFAVRL","dependency_type":"required"},
           {"project_id":"sqEZOmQo","dependency_type":"required"},
-          {"project_id":"KzjvlKEN","dependency_type":"required"}
+          {"project_id":"KzjvlKEN","dependency_type":"required"},
+          {"project_id":"bTTf2DEw","dependency_type":"required"},
+          {"project_id":"2UdFEObs","dependency_type":"optional"}
         ]
       discord_icon_url: "https://raw.githubusercontent.com/Matthiesen-dev/.github/refs/heads/main/mod-logos/cobble-poke-bank.png"
     secrets:

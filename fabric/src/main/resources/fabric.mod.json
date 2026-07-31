@@ -25,6 +25,10 @@
   "depends": {
     "minecraft": "1.21.1",
     "cobblemon": ">=1.7.3 <1.8.0",
-    "matthiesen_core": ">=1.0.0-beta.20 <2.0.0"
+    "matthiesen_core": ">=1.0.0-beta.24 <2.0.0",
+    "sqlite-jdbc": ">=3.53.2.0+2026-06-06"
+  },
+  "suggests": {
+    "mysql-jdbc": ">=9.7.0+2026-05-03"
   }
 }

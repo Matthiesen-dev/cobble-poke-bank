@@ -14,6 +14,11 @@ or multiserver (MySQL) environments, this mod provides a persistent storage solu
 - [Matthiesen Core](https://modrinth.com/mod/matthiesen-core)
 - [Cobblemon](https://modrinth.com/mod/cobblemon)
 - [GooeyLibs](https://modrinth.com/mod/gooeylibs)
+- [Minecraft SQLite JDBC](https://modrinth.com/plugin/minecraft-sqlite-jdbc)
+
+## Optional Dependencies
+
+- [Minecraft MySQL JDBC](https://modrinth.com/plugin/minecraft-mysql-jdbc) (Required for Multi-Server setups)
 
 ## Usage
 

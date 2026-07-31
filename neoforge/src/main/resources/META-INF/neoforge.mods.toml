@@ -37,6 +37,21 @@ side = "BOTH"
 [[dependencies.${mod_id}]]
 modId = "matthiesen_core"
 mandatory = true
-versionRange = "[1.0.0-beta.20,)"
+versionRange = "[1.0.0-beta.24,)"
 ordering = "AFTER"
 side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "sqlite_jdbc"
+mandatory = true
+versionRange = "[3.53.2.0+2026-06-06,)"
+ordering = "AFTER"
+side = "SERVER"
+
+[[dependencies.${mod_id}]]
+modId = "mysql_jdbc"
+type = "optional"
+mandatory = false
+versionRange = "[9.7.0+2026-05-03,)"
+ordering = "AFTER"
+side = "SERVER"

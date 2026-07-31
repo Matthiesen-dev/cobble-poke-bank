@@ -12,9 +12,11 @@ kotlin-for-forge = "5.10.0"
 cobblemon = "1.7.3+1.21.1"
 junit = "5.1.0"
 publish = "0.35.0"
-matthiesen_core = "1.0.0-beta.20"
+matthiesen_core = "1.0.0-beta.24"
 sponge-mixin = "0.8.5"
 gooeylibs_version = "3.1.1-1.21.x"
+sqlite-mod = "EEE7nXWy" # 3.53.2.0+2026-06-06
+mysql-mod = "XiFojYbi" # 9.7.0+2026-05-03
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
@@ -46,6 +48,8 @@ sponge-mixin = { group = "org.spongepowered", name = "mixin", version.ref = "spo
 gooeylibs-common = { group = "ca.landonjw.gooeylibs", name = "api", version.ref = "gooeylibs_version" }
 gooeylibs-fabric = { group = "ca.landonjw.gooeylibs", name = "fabric", version.ref = "gooeylibs_version" }
 gooeylibs-neoforge = { group = "ca.landonjw.gooeylibs", name = "neoforge", version.ref = "gooeylibs_version" }
+sqlite-mod = { group = "maven.modrinth", name = "bTTf2DEw", version.ref = "sqlite-mod" }
+mysql-mod = { group = "maven.modrinth", name = "2UdFEObs", version.ref = "mysql-mod" }
 
 [bundles]
 commonCompileOnly = ["sponge-mixin"]
@@ -55,7 +59,7 @@ commonModImplementationNoTransitive = ["cobblemon-common", "matthiesen-core-comm
 
 fabricModImplementation = ["fabric-loader", "fabric-api", "fabric-language-kotlin"]
 fabricModImplementationNoTransitive = ["cobblemon-fabric", "matthiesen-core-fabric"]
-fabricModRuntimeOnly = ["gooeylibs-fabric"]
+fabricModRuntimeOnly = ["gooeylibs-fabric", "sqlite-mod", "mysql-mod"]
 
 neoforgeModImplementation = ["cobblemon-neoforge", "matthiesen-core-neoforge"]
-neoforgeModRuntimeOnly = ["gooeylibs-neoforge"]
+neoforgeModRuntimeOnly = ["gooeylibs-neoforge", "sqlite-mod", "mysql-mod"]
