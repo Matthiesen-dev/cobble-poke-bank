@@ -6,7 +6,7 @@ import dev.matthiesen.matthiesen_core.common.api.text_parsers.BuiltInTextParsers
 public final class MessagesConfig {
 
     @SerializedName("textParser")
-    public String textParser = BuiltInTextParsers.VANILLA.toString();
+    public String textParser = BuiltInTextParsers.VANILLA.getId();
 
     @SerializedName("prefix")
     public String prefix = "§f[§6Cobble Poke Bank§f] §r";
