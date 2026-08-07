@@ -1,6 +1,7 @@
 package dev.matthiesen.cobble_poke_bank.common.registry;
 
 import dev.matthiesen.cobble_poke_bank.common.CobblePokeBankCommon;
+import dev.matthiesen.cobble_poke_bank.common.config.PokeBankConfig;
 import dev.matthiesen.matthiesen_core.common.api.permissions.Permission;
 import dev.matthiesen.matthiesen_core.common.api.permissions.PermissionLevel;
 import dev.matthiesen.matthiesen_core.common.utility.AbstractPermission;
@@ -9,15 +10,15 @@ import net.minecraft.commands.CommandSourceStack;
 public final class PermissionRegistry {
     public static Permission POKEBANK_PERMISSION = register(
             "command.pokebank",
-            CobblePokeBankCommon.INSTANCE.getConfig().permissionLevels.COMMAND_POKEBANK_PERMISSION_LEVEL
+            PokeBankConfig.PERMISSIONS_START_CONFIG.command_pokebank.getAsInt()
     );
     public static Permission POKEBANK_STATUS_PERMISSION = register(
             "command.pokebank.status",
-            CobblePokeBankCommon.INSTANCE.getConfig().permissionLevels.COMMAND_POKEBANK_STATUS_PERMISSION_LEVEL
+            PokeBankConfig.PERMISSIONS_START_CONFIG.command_pokebank_status.getAsInt()
     );
     public static Permission POKEBANK_RELOAD_PERMISSION = register(
             "command.pokebank.reload",
-            CobblePokeBankCommon.INSTANCE.getConfig().permissionLevels.COMMAND_POKEBANK_RELOAD_PERMISSION_LEVEL
+            PokeBankConfig.PERMISSIONS_START_CONFIG.command_pokebank_reload.getAsInt()
     );
 
     public static class Permissions {

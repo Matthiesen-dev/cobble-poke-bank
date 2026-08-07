@@ -6,8 +6,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.matthiesen.cobble_poke_bank.common.CobblePokeBankCommon;
-import dev.matthiesen.cobble_poke_bank.common.config.MainConfig;
-import dev.matthiesen.cobble_poke_bank.common.config.PokeBankDatabaseConfig;
+import dev.matthiesen.cobble_poke_bank.common.config.PokeBankConfig;
 import dev.matthiesen.cobble_poke_bank.common.menu.MainMenuScreen;
 import dev.matthiesen.cobble_poke_bank.common.utility.ChatHelper;
 import dev.matthiesen.matthiesen_core.common.api.command.CoreCommand;
@@ -63,9 +62,8 @@ public final class PokeBankCommand implements CoreCommand {
     }
 
     private int action(CommandContext<CommandSourceStack> context) {
-        var messagesConfig = CobblePokeBankCommon.INSTANCE.getMessagesConfig();
         if (!CobblePokeBankCommon.INSTANCE.isDatabaseAvailable()) {
-            context.getSource().sendSystemMessage(ChatHelper.buildChatMessage(messagesConfig.commandMessages.databaseUnavailable));
+            context.getSource().sendSystemMessage(ChatHelper.buildChatMessage(PokeBankConfig.SERVER_CONFIG.messageCommandDatabaseUnavailable.get()));
             return 0;
         }
 
@@ -74,12 +72,12 @@ public final class PokeBankCommand implements CoreCommand {
             player = context.getSource().getPlayerOrException();
         } catch (CommandSyntaxException exception) {
             CobblePokeBankCommon.INSTANCE.createErrorLog("Failed to find executing player for pokebank command", exception);
-            context.getSource().sendSystemMessage(ChatHelper.buildChatMessage(messagesConfig.commandMessages.playerNotFound));
+            context.getSource().sendSystemMessage(ChatHelper.buildChatMessage(PokeBankConfig.SERVER_CONFIG.messageCommandPlayerNotFound.get()));
             return 0;
         }
 
         if (PlayerExtensionsKt.isInBattle(player)) {
-            context.getSource().sendSystemMessage(ChatHelper.buildChatMessage(messagesConfig.commandMessages.inBattle));
+            context.getSource().sendSystemMessage(ChatHelper.buildChatMessage(PokeBankConfig.SERVER_CONFIG.messageCommandInBattle.get()));
             return 0;
         }
 
@@ -89,24 +87,24 @@ public final class PokeBankCommand implements CoreCommand {
 
     private int status(CommandContext<CommandSourceStack> context) {
         CommandSourceStack source = context.getSource();
-        MainConfig.Bank bankConfig = CobblePokeBankCommon.INSTANCE.getConfig().bank;
-        PokeBankDatabaseConfig databaseConfig = CobblePokeBankCommon.INSTANCE.getDatabaseConfig();
+        var bankConfig = PokeBankConfig.SERVER_CONFIG;
+        var databaseConfig = PokeBankConfig.DATABASE_CONFIG;
 
         ChatTableBuilder tableBuilder = new ChatTableBuilder("Cobble Poke Bank Status");
 
         tableBuilder.addSection("Database");
-        tableBuilder.addRow("Database Type", databaseConfig.useMySQL ? "MySQL" : "SQLite");
+        tableBuilder.addRow("Database Type", databaseConfig.useMySQL.getAsBoolean() ? "MySQL" : "SQLite");
         tableBuilder.addRow("Database Status", CobblePokeBankCommon.INSTANCE.isDatabaseAvailable() ? "§aConnected" : "§cOffline");
 
         tableBuilder.addSection("Bank Configuration");
-        tableBuilder.addRow("Bank Max Slots", bankConfig.maxSlots <= 0 ? "Unlimited" : String.valueOf(bankConfig.maxSlots));
-        tableBuilder.addRow("No Fainted", bankConfig.noFainted ? "§aEnabled" : "§cDisabled");
-        tableBuilder.addRow("No Held Items", bankConfig.noHeldItems ? "§aEnabled" : "§cDisabled");
-        tableBuilder.addRow("No Legendaries", bankConfig.noLegendaries ? "§aEnabled" : "§cDisabled");
-        tableBuilder.addRow("No Mythicals", bankConfig.noMythicals ? "§aEnabled" : "§cDisabled");
-        tableBuilder.addRow("No Ultra Beasts", bankConfig.noUltraBeasts ? "§aEnabled" : "§cDisabled");
-        tableBuilder.addRow("Official Held Items Only", bankConfig.heldItemRestrictions.officialTaggedOnly ? "§aEnabled" : "§cDisabled");
-        tableBuilder.addRow("Held Item Blacklist Entries", String.valueOf(bankConfig.heldItemRestrictions.blacklist.size()));
+        tableBuilder.addRow("Bank Max Slots", bankConfig.bankMaxSlots.getAsInt() <= 0 ? "Unlimited" : String.valueOf(bankConfig.bankMaxSlots.getAsInt()));
+        tableBuilder.addRow("No Fainted", bankConfig.bankNoFainted.getAsBoolean() ? "§aEnabled" : "§cDisabled");
+        tableBuilder.addRow("No Held Items", bankConfig.bankNoHeldItems.getAsBoolean() ? "§aEnabled" : "§cDisabled");
+        tableBuilder.addRow("No Legendaries", bankConfig.bankNoLegendaries.getAsBoolean() ? "§aEnabled" : "§cDisabled");
+        tableBuilder.addRow("No Mythicals", bankConfig.bankNoMythicals.getAsBoolean() ? "§aEnabled" : "§cDisabled");
+        tableBuilder.addRow("No Ultra Beasts", bankConfig.bankNoUltraBeasts.getAsBoolean() ? "§aEnabled" : "§cDisabled");
+        tableBuilder.addRow("Official Held Items Only", bankConfig.heldItemOfficialTaggedOnly.getAsBoolean() ? "§aEnabled" : "§cDisabled");
+        tableBuilder.addRow("Held Item Blacklist Entries", String.valueOf(bankConfig.heldItemBlacklist.get().size()));
 
         source.sendSystemMessage(tableBuilder.build());
         return 1;
@@ -114,16 +112,15 @@ public final class PokeBankCommand implements CoreCommand {
 
     private int statusBlacklist(CommandContext<CommandSourceStack> context) {
         CommandSourceStack source = context.getSource();
-        MainConfig.Bank bankConfig = CobblePokeBankCommon.INSTANCE.getConfig().bank;
-        var messagesConfig = CobblePokeBankCommon.INSTANCE.getMessagesConfig();
+        var bankConfig = PokeBankConfig.SERVER_CONFIG;
 
         ChatTableBuilder tableBuilder = new ChatTableBuilder("Cobble Poke Bank Held Item Blacklist");
 
-        if (bankConfig.heldItemRestrictions.blacklist.isEmpty()) {
-            source.sendSystemMessage(ChatHelper.buildChatMessage(messagesConfig.commandMessages.noBlacklistedItems));
+        if (bankConfig.heldItemBlacklist.get().isEmpty()) {
+            source.sendSystemMessage(ChatHelper.buildChatMessage(PokeBankConfig.SERVER_CONFIG.messageCommandNoBlacklistedItems.get()));
         } else {
             tableBuilder.addSection("Blacklisted Held Items");
-            for (String item : bankConfig.heldItemRestrictions.blacklist) {
+            for (String item : bankConfig.heldItemBlacklist.get()) {
                 Item decodedItem = ItemDecoder.stringToItem(item, Items.BARRIER);
                 tableBuilder.addRow(item, decodedItem.getDefaultInstance().getDisplayName().getString());
             }
@@ -135,9 +132,8 @@ public final class PokeBankCommand implements CoreCommand {
 
     private int reload(CommandContext<CommandSourceStack> context) {
         CommandSourceStack source = context.getSource();
-        var messagesConfig = CobblePokeBankCommon.INSTANCE.getMessagesConfig();
         CobblePokeBankCommon.INSTANCE.reloadSystem(new ServerEvent.Reload());
-        source.sendSystemMessage(ChatHelper.buildChatMessage(messagesConfig.commandMessages.configsReloaded));
+        source.sendSystemMessage(ChatHelper.buildChatMessage(PokeBankConfig.SERVER_CONFIG.messageCommandConfigsReloaded.get()));
         return 1;
     }
 }

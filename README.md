@@ -15,6 +15,8 @@ or multiserver (MySQL) environments, this mod provides a persistent storage solu
 - [Cobblemon](https://modrinth.com/mod/cobblemon)
 - [GooeyLibs](https://modrinth.com/mod/gooeylibs)
 - [Minecraft SQLite JDBC](https://modrinth.com/plugin/minecraft-sqlite-jdbc)
+- [Fabric API](https://modrinth.com/mod/fabric-api) (Fabric only)
+- [Forge Config API Port](https://modrinth.com/mod/forge-config-api-port) (Fabric only)
 
 ## Optional Dependencies
 

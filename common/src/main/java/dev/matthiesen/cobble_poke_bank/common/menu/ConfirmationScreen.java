@@ -10,7 +10,7 @@ import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.google.gson.JsonObject;
 import dev.matthiesen.cobble_poke_bank.common.CobblePokeBankCommon;
-import dev.matthiesen.cobble_poke_bank.common.config.MainConfig;
+import dev.matthiesen.cobble_poke_bank.common.config.PokeBankConfig;
 import dev.matthiesen.cobble_poke_bank.common.database.repository.PokemonBankRepository;
 import dev.matthiesen.cobble_poke_bank.common.database.service.DatabaseServices;
 import dev.matthiesen.cobble_poke_bank.common.utility.*;
@@ -102,10 +102,9 @@ public final class ConfirmationScreen {
     }
 
     private void depositAsync() {
-        var messagesConfig = CobblePokeBankCommon.INSTANCE.getMessagesConfig();
         Pokemon pokemon = findPokemonInPc();
         if (pokemon == null) {
-            player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.depositMessages.pokemonMissing), false);
+            player.displayClientMessage(ChatHelper.buildChatMessage(PokeBankConfig.SERVER_CONFIG.messageDepositPokemonMissing.get()), false);
             return;
         }
         autoStripHeldItemIfNeeded(pokemon, TransferDirection.DEPOSIT);
@@ -118,7 +117,7 @@ public final class ConfirmationScreen {
         JsonObject jsonObject = new PokeUtil(pokemon).toJson(player.level().registryAccess());
         String userUUID = player.getUUID().toString();
         String pokemonUUIDString = pokemon.getUuid().toString();
-        int maxSlots = CobblePokeBankCommon.INSTANCE.getConfig().bank.maxSlots;
+        int maxSlots = PokeBankConfig.SERVER_CONFIG.bankMaxSlots.getAsInt();
 
         CompletableFuture<Boolean> saveFuture = DatabaseServices.ASYNC_POKE_BANK.getUserBankSize(userUUID)
                 .thenCompose(currentBankSize -> {
@@ -131,15 +130,15 @@ public final class ConfirmationScreen {
         saveFuture.whenComplete((saved, throwable) -> runOnServerThread(() -> {
             if (throwable != null) {
                 CobblePokeBankCommon.INSTANCE.createErrorLog("Failed to store Pokemon in bank asynchronously", throwable);
-                player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.depositMessages.failedToSave), false);
+                player.displayClientMessage(ChatHelper.buildChatMessage(PokeBankConfig.SERVER_CONFIG.messageDepositFailedToSave.get()), false);
                 return;
             }
 
             if (!saved) {
                 if (maxSlots > 0) {
-                    player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.depositMessages.bankFull), false);
+                    player.displayClientMessage(ChatHelper.buildChatMessage(PokeBankConfig.SERVER_CONFIG.messageDepositBankFull.get()), false);
                 } else {
-                    player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.depositMessages.failedToSave), false);
+                    player.displayClientMessage(ChatHelper.buildChatMessage(PokeBankConfig.SERVER_CONFIG.messageDepositFailedToSave.get()), false);
                 }
                 return;
             }
@@ -147,19 +146,18 @@ public final class ConfirmationScreen {
             Pokemon latestPokemon = findPokemonInPc();
             if (latestPokemon == null || !Cobblemon.INSTANCE.getStorage().getPC(player).remove(latestPokemon)) {
                 DatabaseServices.ASYNC_POKE_BANK.deleteBankEntry(userUUID, pokemonUUIDString);
-                player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.depositMessages.pcRemovalFailed), false);
+                player.displayClientMessage(ChatHelper.buildChatMessage(PokeBankConfig.SERVER_CONFIG.messageDepositPcRemovalFailed.get()), false);
                 return;
             }
 
-            player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.depositMessages.pokemonDeposited), false);
+            player.displayClientMessage(ChatHelper.buildChatMessage(PokeBankConfig.SERVER_CONFIG.messageDepositPokemonDeposited.get()), false);
             UIManager.openUIForcefully(player, new UserPCScreen(player).getPage());
         }));
     }
 
     private void withdrawAsync() {
-        var messagesConfig = CobblePokeBankCommon.INSTANCE.getMessagesConfig();
         if (bankEntry == null) {
-            player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.withdrawMessages.pokemonMissing), false);
+            player.displayClientMessage(ChatHelper.buildChatMessage(PokeBankConfig.SERVER_CONFIG.messageWithdrawPokemonMissing.get()), false);
             return;
         }
 
@@ -168,7 +166,7 @@ public final class ConfirmationScreen {
             pokemon = PokeUtil.fromJson(bankEntry.pokemon_json_data(), player.level().registryAccess()).getPokemon();
         } catch (Exception exception) {
             CobblePokeBankCommon.INSTANCE.createErrorLog("Failed to deserialize bank Pokemon entry", exception);
-            player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.withdrawMessages.failedToReadData), false);
+            player.displayClientMessage(ChatHelper.buildChatMessage(PokeBankConfig.SERVER_CONFIG.messageWithdrawFailedToReadData.get()), false);
             return;
         }
 
@@ -186,12 +184,12 @@ public final class ConfirmationScreen {
                 .whenComplete((deleted, throwable) -> runOnServerThread(() -> {
                     if (throwable != null) {
                         CobblePokeBankCommon.INSTANCE.createErrorLog("Failed to delete Pokemon from bank asynchronously", throwable);
-                        player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.withdrawMessages.failedToRemoveFromBank), false);
+                        player.displayClientMessage(ChatHelper.buildChatMessage(PokeBankConfig.SERVER_CONFIG.messageWithdrawFailedToRemoveFromBank.get()), false);
                         return;
                     }
 
                     if (!deleted) {
-                        player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.withdrawMessages.pokemonMissing), false);
+                        player.displayClientMessage(ChatHelper.buildChatMessage(PokeBankConfig.SERVER_CONFIG.messageWithdrawPokemonMissing.get()), false);
                         return;
                     }
 
@@ -201,11 +199,11 @@ public final class ConfirmationScreen {
                                 pokemonUUIDString,
                                 bankEntry.pokemon_json_data()
                         );
-                        player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.withdrawMessages.pcFull), false);
+                        player.displayClientMessage(ChatHelper.buildChatMessage(PokeBankConfig.SERVER_CONFIG.messageWithdrawPcFull.get()), false);
                         return;
                     }
 
-                    player.displayClientMessage(ChatHelper.buildChatMessage(messagesConfig.withdrawMessages.pokemonDeposited), false);
+                    player.displayClientMessage(ChatHelper.buildChatMessage(PokeBankConfig.SERVER_CONFIG.messageWithdrawPokemonDeposited.get()), false);
                     BankMenuNavigator.openBankMenuAsync(player);
                 }));
     }
@@ -254,10 +252,9 @@ public final class ConfirmationScreen {
     }
 
     private String directionToLocation(TransferDirection direction) {
-        var messagesConfig = CobblePokeBankCommon.INSTANCE.getMessagesConfig();
         return switch (direction) {
-            case DEPOSIT -> messagesConfig.locationLabels.deposit;
-            case WITHDRAW -> messagesConfig.locationLabels.withdraw;
+            case DEPOSIT -> PokeBankConfig.SERVER_CONFIG.messageLocationDeposit.get();
+            case WITHDRAW -> PokeBankConfig.SERVER_CONFIG.messageLocationWithdraw.get();
         };
     }
 
@@ -266,15 +263,15 @@ public final class ConfirmationScreen {
      * strips the item, returns it to the player's inventory (drops if full), and notifies the player.
      */
     private void autoStripHeldItemIfNeeded(Pokemon pokemon, TransferDirection direction) {
-        MainConfig.Bank bankConfig = CobblePokeBankCommon.INSTANCE.getConfig().bank;
-        if (!bankConfig.heldItemRestrictions.autoStrip) return;
+        var bankConfig = PokeBankConfig.SERVER_CONFIG;
+        if (!bankConfig.heldItemAutoStrip.getAsBoolean()) return;
 
         ItemStack heldItem = pokemon.heldItem();
         if (heldItem.isEmpty()) return;
 
-        boolean shouldStrip = bankConfig.noHeldItems
-                || (bankConfig.heldItemRestrictions.officialTaggedOnly && !heldItem.is(ModTags.COBBLEMON_HELD_ITEMS))
-                || MainConfig.parseHeldItemBlacklist(bankConfig.heldItemRestrictions.blacklist).contains(heldItem.getItem());
+        boolean shouldStrip = bankConfig.bankNoHeldItems.getAsBoolean()
+                || (bankConfig.heldItemOfficialTaggedOnly.getAsBoolean() && !heldItem.is(ModTags.COBBLEMON_HELD_ITEMS))
+                || PokeBankConfig.getHeldItemBlacklist().contains(heldItem.getItem());
 
         if (!shouldStrip) return;
 
@@ -285,50 +282,48 @@ public final class ConfirmationScreen {
                     player.drop(stripped, false);
                 }
             }
-            var messagesConfig = CobblePokeBankCommon.INSTANCE.getMessagesConfig();
             String location = directionToLocation(direction);
             player.displayClientMessage(
-                    ChatHelper.buildChatMessage(messagesConfig.validationMessages.autoStrippedHeldItem.replace("%s", location)),
+                    ChatHelper.buildChatMessage(PokeBankConfig.SERVER_CONFIG.messageValidationAutoStrippedHeldItem.get().replace("%s", location)),
                     false
             );
         }
     }
 
     private String validatePokemonForTransfer(Pokemon pokemon, TransferDirection direction) {
-        MainConfig.Bank bankConfig = CobblePokeBankCommon.INSTANCE.getConfig().bank;
-        var messagesConfig = CobblePokeBankCommon.INSTANCE.getMessagesConfig();
+        var bankConfig = PokeBankConfig.SERVER_CONFIG;
         ItemStack heldItem = pokemon.heldItem();
         String location = directionToLocation(direction);
 
         if (!heldItem.isEmpty()) {
-            if (bankConfig.noHeldItems) {
-                return messagesConfig.validationMessages.noHeldItems.replace("%s", location);
+            if (bankConfig.bankNoHeldItems.getAsBoolean()) {
+                return PokeBankConfig.SERVER_CONFIG.messageValidationNoHeldItems.get().replace("%s", location);
             }
 
-            if (bankConfig.heldItemRestrictions.officialTaggedOnly && !heldItem.is(ModTags.COBBLEMON_HELD_ITEMS)) {
-                return messagesConfig.validationMessages.officialHeldItemsOnly.replace("%s", location);
+            if (bankConfig.heldItemOfficialTaggedOnly.getAsBoolean() && !heldItem.is(ModTags.COBBLEMON_HELD_ITEMS)) {
+                return PokeBankConfig.SERVER_CONFIG.messageValidationOfficialHeldItemsOnly.get().replace("%s", location);
             }
 
-            List<Item> blacklistedItems = MainConfig.parseHeldItemBlacklist(bankConfig.heldItemRestrictions.blacklist);
+            List<Item> blacklistedItems = PokeBankConfig.getHeldItemBlacklist();
             if (blacklistedItems.contains(heldItem.getItem())) {
-                return messagesConfig.validationMessages.blacklistedHeldItem.replace("%s", location);
+                return PokeBankConfig.SERVER_CONFIG.messageValidationBlacklistedHeldItem.get().replace("%s", location);
             }
         }
 
-        if (bankConfig.noLegendaries && pokemon.isLegendary()) {
-            return messagesConfig.validationMessages.noLegendaries.replace("%s", location);
+        if (bankConfig.bankNoLegendaries.getAsBoolean() && pokemon.isLegendary()) {
+            return PokeBankConfig.SERVER_CONFIG.messageValidationNoLegendaries.get().replace("%s", location);
         }
 
-        if (bankConfig.noMythicals && pokemon.isMythical()) {
-            return messagesConfig.validationMessages.noMythicals.replace("%s", location);
+        if (bankConfig.bankNoMythicals.getAsBoolean() && pokemon.isMythical()) {
+            return PokeBankConfig.SERVER_CONFIG.messageValidationNoMythicals.get().replace("%s", location);
         }
 
-        if (bankConfig.noUltraBeasts && pokemon.isUltraBeast()) {
-            return messagesConfig.validationMessages.noUltraBeasts.replace("%s", location);
+        if (bankConfig.bankNoUltraBeasts.getAsBoolean() && pokemon.isUltraBeast()) {
+            return PokeBankConfig.SERVER_CONFIG.messageValidationNoUltraBeasts.get().replace("%s", location);
         }
 
-        if (bankConfig.noFainted && pokemon.isFainted()) {
-            return messagesConfig.validationMessages.noFainted.replace("%s", location);
+        if (bankConfig.bankNoFainted.getAsBoolean() && pokemon.isFainted()) {
+            return PokeBankConfig.SERVER_CONFIG.messageValidationNoFainted.get().replace("%s", location);
         }
 
         return null;
