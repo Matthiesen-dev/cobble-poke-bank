@@ -26,10 +26,10 @@ or multiserver (MySQL) environments, this mod provides a persistent storage solu
 
 - Run `/pokebank` in-game to open the bank menu.
 - Run `/pokebank status` to view basic system status details (admin permission required).
-- Configure player bank capacity and other restrictions in `config/cobble_poke_bank/config.json` (`bank.maxSlots`):
+- Configure player bank capacity and other restrictions in `config/cobble_poke_bank/server.toml` (`bank.maxSlots`):
   - `<= 0` = unlimited
   - `> 0` = fixed slot cap
-- Configure your database connection in `config/cobble_poke_bank/database.json`:
+- Configure your database connection in `config/cobble_poke_bank/database.toml`:
   - `useMySQL` = `true` for MySQL, `false` for SQLite
 
 ## Docs
