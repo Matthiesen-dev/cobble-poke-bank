@@ -10,15 +10,15 @@ import net.minecraft.commands.CommandSourceStack;
 public final class PermissionRegistry {
     public static Permission POKEBANK_PERMISSION = register(
             "command.pokebank",
-            PokeBankConfig.PERMISSIONS_START_CONFIG.command_pokebank.getAsInt()
+            PokeBankConfig.PERMISSIONS_START_CONFIG.command_pokebank.get().getLevel()
     );
     public static Permission POKEBANK_STATUS_PERMISSION = register(
             "command.pokebank.status",
-            PokeBankConfig.PERMISSIONS_START_CONFIG.command_pokebank_status.getAsInt()
+            PokeBankConfig.PERMISSIONS_START_CONFIG.command_pokebank_status.get().getLevel()
     );
     public static Permission POKEBANK_RELOAD_PERMISSION = register(
             "command.pokebank.reload",
-            PokeBankConfig.PERMISSIONS_START_CONFIG.command_pokebank_reload.getAsInt()
+            PokeBankConfig.PERMISSIONS_START_CONFIG.command_pokebank_reload.get().getLevel()
     );
 
     public static class Permissions {

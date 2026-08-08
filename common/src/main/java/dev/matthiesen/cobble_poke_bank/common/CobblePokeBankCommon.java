@@ -42,18 +42,22 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
         PermissionRegistry.init();
         getCommandsRegistryManager().registerCommand(PokeBankCommand.CMD);
 
-        PlatformEvents.SERVER_STARTING.subscribe(this::startupDatabase);
+        PlatformEvents.SERVER_STARTED.subscribe(this::startupDatabase);
         PlatformEvents.SERVER_RELOAD.subscribe(this::reloadSystem);
         PlatformEvents.SERVER_STOPPING.subscribe(this::shutdownDatabase);
 
         createInfoLog("Initialized");
     }
 
-    public void startupDatabase(ServerEvent.Starting event) {
+    private boolean isServerRunning = false;
+
+    public void startupDatabase(ServerEvent.Started event) {
+        isServerRunning = true;
         prepareDatabase(true);
     }
 
     public void reloadSystem(ServerEvent.Reload event) {
+        if (!isServerRunning) return; // Prevents database reload on server start, only on reload
         var dbConfig = PokeBankConfig.getDatabaseConfig();
 
         createInfoLog("Reloading database connection...");
@@ -75,6 +79,8 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
     }
 
     public void shutdownDatabase(ServerEvent.Stopping event) {
+        if (!isServerRunning) return;
+        isServerRunning = false;
         if (database != null) {
             database.close();
             databaseAvailable = false;
