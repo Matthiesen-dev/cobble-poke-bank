@@ -57,7 +57,7 @@ public final class PokeBankConfig {
         databaseConfig.mySQLConfig.username = DATABASE_CONFIG.mysqlUsername.get();
         databaseConfig.mySQLConfig.password = DATABASE_CONFIG.mysqlPassword.get();
         databaseConfig.mySQLConfig.timeout = DATABASE_CONFIG.mysqlTimeout.getAsInt();
-        databaseConfig.sqLiteConfig.fileName = "cobble_poke_bank.db";
+        databaseConfig.sqLiteConfig.fileName = "bank.db";
         return databaseConfig;
     }
 }
