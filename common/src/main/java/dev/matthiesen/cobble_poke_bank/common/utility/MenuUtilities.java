@@ -1,7 +1,9 @@
 package dev.matthiesen.cobble_poke_bank.common.utility;
 
 import com.cobblemon.mod.common.CobblemonItems;
+import dev.matthiesen.cobble_poke_bank.common.config.PokeBankConfig;
 import dev.matthiesen.matthiesen_core.common.utility.item.ItemBuilder;
+import dev.matthiesen.matthiesen_core.common.utility.item.ItemDecoder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
@@ -9,17 +11,48 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 public final class MenuUtilities {
-    public static final Item FRAME = Items.GRAY_STAINED_GLASS_PANE;
-    public static final Item PC = CobblemonItems.PC;
-    public static final Item BANK = Items.ENDER_CHEST;
-    public static final Item INFO = Items.PAPER;
-    public static final Item NAV = Items.ARROW;
-    public static final Item BACK = Items.OAK_SIGN;
-    public static final Item CONFIRM = Items.LIME_DYE;
-    public static final Item CANCEL = Items.RED_DYE;
-    public static final Item INVALID = Items.BARRIER;
 
     private MenuUtilities() {}
+
+    public static Item getFrame() {
+        return ItemDecoder.stringToItem(PokeBankConfig.SERVER_CONFIG.guiFrameItemId.get(), Items.GRAY_STAINED_GLASS_PANE);
+    }
+
+    public static Item getPC() {
+        return ItemDecoder.stringToItem(PokeBankConfig.SERVER_CONFIG.guiPcItemId.get(), CobblemonItems.PC);
+    }
+
+    public static Item getBank() {
+        return ItemDecoder.stringToItem(PokeBankConfig.SERVER_CONFIG.guiBankItemId.get(), Items.ENDER_CHEST);
+    }
+
+    public static Item getInfo() {
+        return ItemDecoder.stringToItem(PokeBankConfig.SERVER_CONFIG.guiInfoItemId.get(), Items.PAPER);
+    }
+
+    public static Item getNAV_PREV() {
+        return ItemDecoder.stringToItem(PokeBankConfig.SERVER_CONFIG.guiNavPrevItemId.get(), Items.ARROW);
+    }
+
+    public static Item getNAV_NEXT() {
+        return ItemDecoder.stringToItem(PokeBankConfig.SERVER_CONFIG.guiNavNextItemId.get(), Items.ARROW);
+    }
+
+    public static Item getBack() {
+        return ItemDecoder.stringToItem(PokeBankConfig.SERVER_CONFIG.guiBackItemId.get(), Items.OAK_SIGN);
+    }
+
+    public static Item getConfirm() {
+        return ItemDecoder.stringToItem(PokeBankConfig.SERVER_CONFIG.guiConfirmItemId.get(), Items.LIME_DYE);
+    }
+
+    public static Item getCancel() {
+        return ItemDecoder.stringToItem(PokeBankConfig.SERVER_CONFIG.guiCancelItemId.get(), Items.RED_DYE);
+    }
+
+    public static Item getInvalid() {
+        return ItemDecoder.stringToItem(PokeBankConfig.SERVER_CONFIG.guiInvalidItemId.get(), Items.BARRIER);
+    }
 
     private static ItemStack builder(Item item, Component name) {
         return new ItemBuilder(item)
@@ -29,42 +62,42 @@ public final class MenuUtilities {
     }
 
     public static ItemStack getFrameItem() {
-        return builder(FRAME, Component.literal(" "));
+        return builder(getFrame(), Component.literal(" "));
     }
 
     public static ItemStack getPcMenuItem() {
-        return builder(PC, Component.literal("Open PC").withStyle(ChatFormatting.AQUA));
+        return builder(getPC(), Component.literal("Open PC").withStyle(ChatFormatting.AQUA));
     }
 
     public static ItemStack getBankMenuItem() {
-        return builder(BANK, Component.literal("Open Bank").withStyle(ChatFormatting.GOLD));
+        return builder(getBank(), Component.literal("Open Bank").withStyle(ChatFormatting.GOLD));
     }
 
     public static ItemStack getBackItem() {
-        return builder(BACK, Component.literal("Back").withStyle(ChatFormatting.BLUE));
+        return builder(getBack(), Component.literal("Back").withStyle(ChatFormatting.BLUE));
     }
 
     public static ItemStack getPrevItem() {
-        return builder(NAV, Component.literal("Previous").withStyle(ChatFormatting.BLUE));
+        return builder(getNAV_PREV(), Component.literal("Previous").withStyle(ChatFormatting.BLUE));
     }
 
     public static ItemStack getNextItem() {
-        return builder(NAV, Component.literal("Next").withStyle(ChatFormatting.BLUE));
+        return builder(getNAV_NEXT(), Component.literal("Next").withStyle(ChatFormatting.BLUE));
     }
 
     public static ItemStack getConfirmItem() {
-        return builder(CONFIRM, Component.literal("Confirm").withStyle(ChatFormatting.GREEN));
+        return builder(getConfirm(), Component.literal("Confirm").withStyle(ChatFormatting.GREEN));
     }
 
     public static ItemStack getCancelItem() {
-        return builder(CANCEL, Component.literal("Cancel").withStyle(ChatFormatting.RED));
+        return builder(getCancel(), Component.literal("Cancel").withStyle(ChatFormatting.RED));
     }
 
     public static ItemStack getInfoItem(String label) {
-        return builder(INFO, Component.literal(label).withStyle(ChatFormatting.YELLOW));
+        return builder(getInfo(), Component.literal(label).withStyle(ChatFormatting.YELLOW));
     }
 
     public static ItemStack getInvalidEntryItem() {
-        return builder(INVALID, Component.literal("Invalid Pokemon Data").withStyle(ChatFormatting.DARK_RED));
+        return builder(getInvalid(), Component.literal("Invalid Pokemon Data").withStyle(ChatFormatting.DARK_RED));
     }
 }

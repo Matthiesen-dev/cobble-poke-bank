@@ -20,6 +20,18 @@ public final class ServerConfig {
     public ModConfigSpec.BooleanValue heldItemAutoStrip;
     public ModConfigSpec.ConfigValue<List<? extends String>> heldItemBlacklist;
 
+    // GUI Configuration
+    public ModConfigSpec.ConfigValue<String> guiFrameItemId;
+    public ModConfigSpec.ConfigValue<String> guiPcItemId;
+    public ModConfigSpec.ConfigValue<String> guiBankItemId;
+    public ModConfigSpec.ConfigValue<String> guiInfoItemId;
+    public ModConfigSpec.ConfigValue<String> guiNavPrevItemId;
+    public ModConfigSpec.ConfigValue<String> guiNavNextItemId;
+    public ModConfigSpec.ConfigValue<String> guiBackItemId;
+    public ModConfigSpec.ConfigValue<String> guiConfirmItemId;
+    public ModConfigSpec.ConfigValue<String> guiCancelItemId;
+    public ModConfigSpec.ConfigValue<String> guiInvalidItemId;
+
     // Messages Config
     public ModConfigSpec.EnumValue<BuiltInTextParsers> messageTextParser;
     public ModConfigSpec.ConfigValue<String> messagePrefix;
@@ -141,6 +153,73 @@ public final class ServerConfig {
                 .translation("cobble_poke_bank.configuration.server.heldItemRestrictions.blacklist")
                 .defineList("blacklist", List.of(), () -> "", o -> o instanceof String);
         builder.pop(); // Closes "server.heldItemRestrictions"
+
+        builder.comment("GUI Configuration")
+                .translation("cobble_poke_bank.configuration.server.gui")
+                .push("gui");
+
+        guiFrameItemId = builder.comment(
+                        "The item ID to use for the frame of the bank GUI.",
+                        "Default: minecraft:gray_stained_glass_pane"
+                )
+                .translation("cobble_poke_bank.configuration.server.gui.frameItemId")
+                .define("frameItemId", "minecraft:gray_stained_glass_pane");
+        guiPcItemId = builder.comment(
+                        "The item ID to use for the PC button in the bank GUI.",
+                        "Default: cobblemon:pc"
+                )
+                .translation("cobble_poke_bank.configuration.server.gui.pcItemId")
+                .define("pcItemId", "cobblemon:pc");
+        guiBankItemId = builder.comment(
+                        "The item ID to use for the Bank button in the bank GUI.",
+                        "Default: minecraft:ender_chest"
+                )
+                .translation("cobble_poke_bank.configuration.server.gui.bankItemId")
+                .define("bankItemId", "minecraft:ender_chest");
+        guiInfoItemId = builder.comment(
+                        "The item ID to use for the Info button in the bank GUI.",
+                        "Default: minecraft:paper"
+                )
+                .translation("cobble_poke_bank.configuration.server.gui.infoItemId")
+                .define("infoItemId", "minecraft:paper");
+        guiNavPrevItemId = builder.comment(
+                        "The item ID to use for the Previous button in the bank GUI.",
+                        "Default: minecraft:arrow"
+                )
+                .translation("cobble_poke_bank.configuration.server.gui.navPrevItemId")
+                .define("navPrevItemId", "minecraft:arrow");
+        guiNavNextItemId = builder.comment(
+                        "The item ID to use for the Next button in the bank GUI.",
+                        "Default: minecraft:arrow"
+                )
+                .translation("cobble_poke_bank.configuration.server.gui.navNextItemId")
+                .define("navNextItemId", "minecraft:arrow");
+        guiBackItemId = builder.comment(
+                        "The item ID to use for the Back button in the bank GUI.",
+                        "Default: minecraft:oak_sign"
+                )
+                .translation("cobble_poke_bank.configuration.server.gui.backItemId")
+                .define("backItemId", "minecraft:oak_sign");
+        guiConfirmItemId = builder.comment(
+                        "The item ID to use for the Confirm button in the bank GUI.",
+                        "Default: minecraft:lime_dye"
+                )
+                .translation("cobble_poke_bank.configuration.server.gui.confirmItemId")
+                .define("confirmItemId", "minecraft:lime_dye");
+        guiCancelItemId = builder.comment(
+                        "The item ID to use for the Cancel button in the bank GUI.",
+                        "Default: minecraft:red_dye"
+                )
+                .translation("cobble_poke_bank.configuration.server.gui.cancelItemId")
+                .define("cancelItemId", "minecraft:red_dye");
+        guiInvalidItemId = builder.comment(
+                        "The item ID to use for the Invalid button in the bank GUI.",
+                        "Default: minecraft:barrier"
+                )
+                .translation("cobble_poke_bank.configuration.server.gui.invalidItemId")
+                .define("invalidItemId", "minecraft:barrier");
+
+        builder.pop(); // Closes "server.gui"
 
         builder.comment("Messages Configuration")
                 .translation("cobble_poke_bank.configuration.server.messages")
