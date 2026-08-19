@@ -37,16 +37,22 @@ public final class PokeBankCommand implements CoreCommand {
     public void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registry, Commands.CommandSelection context) {
         var permissions = CobblePokeBankCommon.INSTANCE.getPermissions();
 
-        // /pokebank status blacklist - shows blacklist entries
+        // /pokebank status blacklist - shows held item blacklist entries
         var blacklistCMD = CommandBuilder.create("blacklist")
                 .requires(requirePredicate(permissions.POKEBANK_STATUS_PERMISSION))
                 .executes(this::statusBlacklist);
+
+        // /pokebank status pokemonblacklist - shows Pokemon blacklist entries
+        var pokemonBlacklistCMD = CommandBuilder.create("pokemonblacklist")
+                .requires(requirePredicate(permissions.POKEBANK_STATUS_PERMISSION))
+                .executes(this::statusPokemonBlacklist);
 
         // /pokebank status - Shows mod status
         var statusCMD = CommandBuilder.create("status")
                 .requires(requirePredicate(permissions.POKEBANK_STATUS_PERMISSION))
                 .executes(this::status)
-                .then(blacklistCMD);
+                .then(blacklistCMD)
+                .then(pokemonBlacklistCMD);
 
         // /pokebank reload - Reloads the config
         var reloadCMD = CommandBuilder.create("reload")
@@ -245,8 +251,28 @@ public final class PokeBankCommand implements CoreCommand {
         tableBuilder.addRow("No Legendaries", bankConfig.bankNoLegendaries.getAsBoolean() ? "§aEnabled" : "§cDisabled");
         tableBuilder.addRow("No Mythicals", bankConfig.bankNoMythicals.getAsBoolean() ? "§aEnabled" : "§cDisabled");
         tableBuilder.addRow("No Ultra Beasts", bankConfig.bankNoUltraBeasts.getAsBoolean() ? "§aEnabled" : "§cDisabled");
+        tableBuilder.addRow("Pokemon Blacklist Entries", String.valueOf(bankConfig.bankPokemonBlacklist.get().size()));
         tableBuilder.addRow("Official Held Items Only", bankConfig.heldItemOfficialTaggedOnly.getAsBoolean() ? "§aEnabled" : "§cDisabled");
         tableBuilder.addRow("Held Item Blacklist Entries", String.valueOf(bankConfig.heldItemBlacklist.get().size()));
+
+        source.sendSystemMessage(tableBuilder.build());
+        return 1;
+    }
+
+    private int statusPokemonBlacklist(CommandContext<CommandSourceStack> context) {
+        CommandSourceStack source = context.getSource();
+        var bankConfig = PokeBankConfig.SERVER_CONFIG;
+
+        ChatTableBuilder tableBuilder = new ChatTableBuilder("Cobble Poke Bank Pokemon Blacklist");
+
+        if (bankConfig.bankPokemonBlacklist.get().isEmpty()) {
+            source.sendSystemMessage(ChatHelper.buildChatMessage(PokeBankConfig.SERVER_CONFIG.messageCommandNoBlacklistedPokemon.get()));
+        } else {
+            tableBuilder.addSection("Blacklisted Pokemon");
+            for (String pokemon : bankConfig.bankPokemonBlacklist.get()) {
+                tableBuilder.addRow(pokemon, pokemon);
+            }
+        }
 
         source.sendSystemMessage(tableBuilder.build());
         return 1;
