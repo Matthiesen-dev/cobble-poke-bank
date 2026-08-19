@@ -14,6 +14,7 @@ public final class ServerConfig {
     public ModConfigSpec.BooleanValue bankNoLegendaries;
     public ModConfigSpec.BooleanValue bankNoMythicals;
     public ModConfigSpec.BooleanValue bankNoUltraBeasts;
+    public ModConfigSpec.ConfigValue<List<? extends String>> bankPokemonBlacklist;
 
     // Held Item Restrictions
     public ModConfigSpec.BooleanValue heldItemOfficialTaggedOnly;
@@ -44,6 +45,7 @@ public final class ServerConfig {
     public ModConfigSpec.ConfigValue<String> messageCommandDatabaseUnavailable;
     public ModConfigSpec.ConfigValue<String> messageCommandPlayerNotFound;
     public ModConfigSpec.ConfigValue<String> messageCommandNoBlacklistedItems;
+    public ModConfigSpec.ConfigValue<String> messageCommandNoBlacklistedPokemon;
     public ModConfigSpec.ConfigValue<String> messageCommandInBattle;
     public ModConfigSpec.ConfigValue<String> messageCommandConfigsReloaded;
 
@@ -70,6 +72,7 @@ public final class ServerConfig {
     public ModConfigSpec.ConfigValue<String> messageValidationNoHeldItems;
     public ModConfigSpec.ConfigValue<String> messageValidationOfficialHeldItemsOnly;
     public ModConfigSpec.ConfigValue<String> messageValidationBlacklistedHeldItem;
+    public ModConfigSpec.ConfigValue<String> messageValidationBlacklistedPokemon;
     public ModConfigSpec.ConfigValue<String> messageValidationNoLegendaries;
     public ModConfigSpec.ConfigValue<String> messageValidationNoMythicals;
     public ModConfigSpec.ConfigValue<String> messageValidationNoUltraBeasts;
@@ -126,6 +129,14 @@ public final class ServerConfig {
                 )
                 .translation("cobble_poke_bank.configuration.server.bank.noUltraBeasts")
                 .define("noUltraBeasts", false);
+        bankPokemonBlacklist = builder.comment(
+                        "A list of Pokemon that are not allowed to be stored in the bank.",
+                        "Players will not be able to store these Pokemon in the bank.",
+                        "Default: []",
+                        "Format: List of Pokemon species names without the 'cobblemon:' prefix (e.g. pikachu, charizard, bulbasaur)"
+                )
+                .translation("cobble_poke_bank.configuration.server.bank.pokemonBlacklist")
+                .defineList("pokemonBlacklist", List.of(), () -> "", o -> o instanceof String);
         builder.pop(); // Closes "server.bank"
 
         builder.comment("Held Item Restrictions")
@@ -266,6 +277,9 @@ public final class ServerConfig {
         messageCommandNoBlacklistedItems = builder.comment("The message to send to players when they try to deposit a Pokemon with a blacklisted held item.")
                 .translation("cobble_poke_bank.configuration.server.commandMessages.noBlacklistedItems")
                 .define("noBlacklistedItems", "§eNo held items are blacklisted.");
+        messageCommandNoBlacklistedPokemon = builder.comment("The message to send to players when there are no blacklisted Pokemon.")
+                .translation("cobble_poke_bank.configuration.server.commandMessages.noBlacklistedPokemon")
+                .define("noBlacklistedPokemon", "§eNo Pokemon are blacklisted.");
         messageCommandInBattle = builder.comment("The message to send to players when they try to use the bank while in battle.")
                 .translation("cobble_poke_bank.configuration.server.commandMessages.inBattle")
                 .define("inBattle", "§cYou cannot access the bank while in battle.");
@@ -340,6 +354,9 @@ public final class ServerConfig {
         messageValidationBlacklistedHeldItem = builder.comment("The message to send to players when they try to deposit a Pokemon with a held item that is blacklisted.")
                 .translation("cobble_poke_bank.configuration.server.validationMessages.blacklistedHeldItem")
                 .define("blacklistedHeldItem", "§cThis Pokemon is holding a blacklisted item, which is not allowed in the %s.");
+        messageValidationBlacklistedPokemon = builder.comment("The message to send to players when they try to deposit or withdraw a Pokemon that is blacklisted.")
+                .translation("cobble_poke_bank.configuration.server.validationMessages.blacklistedPokemon")
+                .define("blacklistedPokemon", "§cThis Pokemon is blacklisted and is not allowed in the %s.");
         messageValidationNoLegendaries = builder.comment("The message to send to players when they try to deposit a Legendary Pokemon when Legendary Pokemon are not allowed.")
                 .translation("cobble_poke_bank.configuration.server.validationMessages.noLegendaries")
                 .define("noLegendaries", "§cThis Pokemon is a legendary, which is not allowed in the %s.");

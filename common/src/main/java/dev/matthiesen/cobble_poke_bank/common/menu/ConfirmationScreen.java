@@ -107,6 +107,12 @@ public final class ConfirmationScreen {
             player.displayClientMessage(ChatHelper.buildChatMessage(PokeBankConfig.SERVER_CONFIG.messageDepositPokemonMissing.get()), false);
             return;
         }
+        if (new PokeUtil(pokemon).isBlacklisted()) {
+            player.displayClientMessage(ChatHelper.buildChatMessage(
+                    PokeBankConfig.SERVER_CONFIG.messageValidationBlacklistedPokemon.get().replace("%s", directionToLocation(TransferDirection.DEPOSIT))
+            ), false);
+            return;
+        }
         autoStripHeldItemIfNeeded(pokemon, TransferDirection.DEPOSIT);
         String transferValidationMessage = validatePokemonForTransfer(pokemon, TransferDirection.DEPOSIT);
         if (transferValidationMessage != null) {
@@ -170,6 +176,12 @@ public final class ConfirmationScreen {
             return;
         }
 
+        if (new PokeUtil(pokemon).isBlacklisted()) {
+            player.displayClientMessage(ChatHelper.buildChatMessage(
+                    PokeBankConfig.SERVER_CONFIG.messageValidationBlacklistedPokemon.get().replace("%s", directionToLocation(TransferDirection.WITHDRAW))
+            ), false);
+            return;
+        }
         autoStripHeldItemIfNeeded(pokemon, TransferDirection.WITHDRAW);
         String transferValidationMessage = validatePokemonForTransfer(pokemon, TransferDirection.WITHDRAW);
         if (transferValidationMessage != null) {
@@ -294,6 +306,10 @@ public final class ConfirmationScreen {
         var bankConfig = PokeBankConfig.SERVER_CONFIG;
         ItemStack heldItem = pokemon.heldItem();
         String location = directionToLocation(direction);
+
+        if (new PokeUtil(pokemon).isBlacklisted()) {
+            return PokeBankConfig.SERVER_CONFIG.messageValidationBlacklistedPokemon.get().replace("%s", location);
+        }
 
         if (!heldItem.isEmpty()) {
             if (bankConfig.bankNoHeldItems.getAsBoolean()) {

@@ -7,6 +7,7 @@ import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.pokemon.PokemonStats;
 import com.cobblemon.mod.common.util.LocalizationUtilsKt;
 import com.google.gson.JsonObject;
+import dev.matthiesen.cobble_poke_bank.common.config.PokeBankConfig;
 import dev.matthiesen.matthiesen_core.common.utility.item.ItemBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.RegistryAccess;
@@ -27,6 +28,17 @@ public final class PokeUtil {
     public PokeUtil(@NotNull Pokemon pokemon) {
         this.pokemon = pokemon;
         this.gender = pokemon.getGender();
+    }
+
+    public boolean isBlacklisted() {
+        var bankConfig = PokeBankConfig.SERVER_CONFIG;
+        var species = pokemon.getSpecies().getResourceIdentifier().getPath();
+        for (String blacklistEntry : bankConfig.bankPokemonBlacklist.get()) {
+            if (blacklistEntry != null && blacklistEntry.trim().equalsIgnoreCase(species)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Pokemon getPokemon() {
