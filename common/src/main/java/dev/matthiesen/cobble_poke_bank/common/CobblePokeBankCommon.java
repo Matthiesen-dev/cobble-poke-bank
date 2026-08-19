@@ -33,11 +33,15 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
         return METRICS_TOKEN;
     }
 
+    public String configPath(String name) {
+        return MOD_ID + "/" + name + ".toml";
+    }
+
     public void initialize() {
         super.initialize();
-        registerModConfig(MOD_ID, ModConfigType.STARTUP, PokeBankConfig.PERMISSIONS_START_SPEC, "cobble_poke_bank/permissions.toml");
-        registerModConfig(MOD_ID, ModConfigType.STARTUP, PokeBankConfig.DATABASE_SPEC, "cobble_poke_bank/database.toml");
-        registerModConfig(MOD_ID, ModConfigType.SERVER, PokeBankConfig.SERVER_SPEC, "cobble_poke_bank/server.toml");
+        registerModConfig(MOD_ID, ModConfigType.STARTUP, PokeBankConfig.PERMISSIONS_START_SPEC, configPath("permissions"));
+        registerModConfig(MOD_ID, ModConfigType.STARTUP, PokeBankConfig.DATABASE_SPEC, configPath("database"));
+        registerModConfig(MOD_ID, ModConfigType.SERVER, PokeBankConfig.SERVER_SPEC, configPath("server"));
 
         PermissionRegistry.init();
         getCommandsRegistryManager().registerCommand(PokeBankCommand.CMD);
@@ -114,8 +118,7 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
             return;
         }
 
-        DatabaseServices.POKE_BANK.createTable();
-        DatabaseServices.POKE_BANK.createIndexes();
+        DatabaseServices.initializeTables();
 
         long end = System.currentTimeMillis();
         createInfoLog("Database prepared in " + (end - start) + "ms");
