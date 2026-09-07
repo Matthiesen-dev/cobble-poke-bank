@@ -42,6 +42,7 @@ Documentation for this mod can be found at [mods.matthiesen.dev](https://mods.ma
 |-------------------|-------------------------|-------------------|--------------|
 | 1.21.1            | 1.x.x                   | 1.7.3             | 1.0.0-beta.x |
 | 1.21.1            | 1.2.7+                  | 1.8.0             | 1.0.0+       |
+| 1.21.1            | 1.2.9+                  | 1.8.0             | 1.1.0+       |
 
 ## FastStats Metrics
 
