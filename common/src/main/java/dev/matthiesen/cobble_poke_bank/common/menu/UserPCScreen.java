@@ -5,6 +5,7 @@ import ca.landonjw.gooeylibs2.api.button.Button;
 import ca.landonjw.gooeylibs2.api.button.GooeyButton;
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.pokemon.Pokemon;
+import dev.matthiesen.cobble_poke_bank.common.config.PokeBankConfig;
 import dev.matthiesen.cobble_poke_bank.common.utility.PokeUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -38,6 +39,9 @@ public final class UserPCScreen extends AbstractUserScreen {
 
     @Override
     protected Component getPageTitle() {
-        return Component.literal(getPlayer().getName().getString() + "'s PC");
+        String titleTemplate = PokeBankConfig.SERVER_CONFIG.guiText_userPCScreenTitle.get();
+        String playerName = getPlayer().getName().getString();
+        String title = titleTemplate.replace("{player}", playerName);
+        return Component.literal(title);
     }
 }

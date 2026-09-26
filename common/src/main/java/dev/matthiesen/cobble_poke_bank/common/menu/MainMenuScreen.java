@@ -6,6 +6,7 @@ import ca.landonjw.gooeylibs2.api.button.GooeyButton;
 import ca.landonjw.gooeylibs2.api.page.GooeyPage;
 import ca.landonjw.gooeylibs2.api.page.Page;
 import ca.landonjw.gooeylibs2.api.template.types.ChestTemplate;
+import dev.matthiesen.cobble_poke_bank.common.config.PokeBankConfig;
 import dev.matthiesen.cobble_poke_bank.common.utility.MenuUtilities;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,6 +19,8 @@ public final class MainMenuScreen {
     }
 
     public Page getPage() {
+        var config = PokeBankConfig.SERVER_CONFIG;
+
         Button frame = GooeyButton.builder()
                 .display(MenuUtilities.getFrameItem())
                 .build();
@@ -33,7 +36,7 @@ public final class MainMenuScreen {
                 .build();
 
         Button info = GooeyButton.builder()
-                .display(MenuUtilities.getInfoItem("Move Pokemon between PC and Bank"))
+                .display(MenuUtilities.getInfoItem(config.guiText_mainMenuInfo.get()))
                 .build();
 
         ChestTemplate template = ChestTemplate.builder(3)
@@ -43,8 +46,10 @@ public final class MainMenuScreen {
                 .set(15, openBank)
                 .build();
 
+        String titleText = config.guiText_mainMenuTitle.get()
+                .replace("{player}", player.getName().getString());
         return GooeyPage.builder()
-                .title(Component.literal(player.getName().getString() + "'s Poke Bank"))
+                .title(Component.literal(titleText))
                 .template(template)
                 .build();
     }

@@ -8,6 +8,7 @@ import com.cobblemon.mod.common.pokemon.PokemonStats;
 import com.cobblemon.mod.common.util.LocalizationUtilsKt;
 import com.google.gson.JsonObject;
 import dev.matthiesen.cobble_poke_bank.common.config.PokeBankConfig;
+import dev.matthiesen.cobble_poke_bank.common.config.ServerConfig;
 import dev.matthiesen.matthiesen_core.common.utility.item.ItemBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.RegistryAccess;
@@ -30,8 +31,12 @@ public final class PokeUtil {
         this.gender = pokemon.getGender();
     }
 
+    private static ServerConfig getServerConfig() {
+        return PokeBankConfig.SERVER_CONFIG;
+    }
+
     public boolean isBlacklisted() {
-        var bankConfig = PokeBankConfig.SERVER_CONFIG;
+        var bankConfig = getServerConfig();
         var species = pokemon.getSpecies().getResourceIdentifier().getPath();
         for (String blacklistEntry : bankConfig.bankPokemonBlacklist.get()) {
             if (blacklistEntry != null && blacklistEntry.trim().equalsIgnoreCase(species)) {
@@ -95,16 +100,17 @@ public final class PokeUtil {
     }
 
     private List<MutableComponent> getMovesComponents() {
+        String emptyMoveSlotText = getServerConfig().guiText_pokemonEmptyMoveSlot.get();
         String moveOne = !pokemon.getMoveSet().getMoves().isEmpty() ?
-                Objects.requireNonNull(pokemon.getMoveSet().get(0)).getDisplayName().getString() : "Empty";
+                Objects.requireNonNull(pokemon.getMoveSet().get(0)).getDisplayName().getString() : emptyMoveSlotText;
         String moveTwo = pokemon.getMoveSet().getMoves().size() >= 2 ?
-                Objects.requireNonNull(pokemon.getMoveSet().get(1)).getDisplayName().getString() : "Empty";
+                Objects.requireNonNull(pokemon.getMoveSet().get(1)).getDisplayName().getString() : emptyMoveSlotText;
         String moveThree = pokemon.getMoveSet().getMoves().size() >= 3 ?
-                Objects.requireNonNull(pokemon.getMoveSet().get(2)).getDisplayName().getString() : "Empty";
+                Objects.requireNonNull(pokemon.getMoveSet().get(2)).getDisplayName().getString() : emptyMoveSlotText;
         String moveFour = pokemon.getMoveSet().getMoves().size() >= 4 ?
-                Objects.requireNonNull(pokemon.getMoveSet().get(3)).getDisplayName().getString() : "Empty";
+                Objects.requireNonNull(pokemon.getMoveSet().get(3)).getDisplayName().getString() : emptyMoveSlotText;
         return List.of(
-                Component.literal("Moves: ").withStyle(ChatFormatting.DARK_GREEN),
+                Component.literal(getServerConfig().guiText_pokemonMovesListLabel.get()).withStyle(ChatFormatting.DARK_GREEN),
                 Component.literal(" ").append(Component.literal(moveOne).withStyle(ChatFormatting.WHITE)),
                 Component.literal(" ").append(Component.literal(moveTwo).withStyle(ChatFormatting.WHITE)),
                 Component.literal(" ").append(Component.literal(moveThree).withStyle(ChatFormatting.WHITE)),
@@ -127,14 +133,14 @@ public final class PokeUtil {
 
     private String getStatLabel(Stats stat) {
         return switch (stat) {
-            case HP -> "HP";
-            case ATTACK -> "Atk";
-            case DEFENCE -> "Def";
-            case SPECIAL_ATTACK -> "SpAtk";
-            case SPECIAL_DEFENCE -> "SpDef";
-            case SPEED -> "Spd";
-            case EVASION -> "Evasion";
-            case ACCURACY -> "Accuracy";
+            case HP -> getServerConfig().guiText_pokemonStats_hp.get();
+            case ATTACK -> getServerConfig().guiText_pokemonStats_attack.get();
+            case DEFENCE -> getServerConfig().guiText_pokemonStats_defense.get();
+            case SPECIAL_ATTACK -> getServerConfig().guiText_pokemonStats_specialAttack.get();
+            case SPECIAL_DEFENCE -> getServerConfig().guiText_pokemonStats_specialDefense.get();
+            case SPEED -> getServerConfig().guiText_pokemonStats_speed.get();
+            case EVASION -> getServerConfig().guiText_pokemonStats_evasion.get();
+            case ACCURACY -> getServerConfig().guiText_pokemonStats_accuracy.get();
         };
     }
 
@@ -180,13 +186,13 @@ public final class PokeUtil {
     private Component[] getLore() {
         String pokeball = pokemon.getCaughtBall().item().getDefaultInstance().getDisplayName().getString();
         String level = String.valueOf(pokemon.getLevel());
-        String nickname = pokemon.getNickname() != null ? pokemon.getNickname().getString() : "No nickname";
-        String heldItem = pokemon.heldItem().isEmpty() ? "No held item" : pokemon.heldItem().getDisplayName().getString();
-        String OT = pokemon.getOriginalTrainerName() != null ? pokemon.getOriginalTrainerName() : "Unknown";
+        String nickname = pokemon.getNickname() != null ? pokemon.getNickname().getString() : getServerConfig().guiText_pokemonNoNickname.get();
+        String heldItem = pokemon.heldItem().isEmpty() ? getServerConfig().guiText_pokemonNoHeldItem.get() : pokemon.heldItem().getDisplayName().getString();
+        String OT = pokemon.getOriginalTrainerName() != null ? pokemon.getOriginalTrainerName() : getServerConfig().guiText_pokemonOTUnknown.get();
         MutableComponent nature = LocalizationUtilsKt.lang(pokemon.getNature().getDisplayName().replace("cobblemon.", ""));
         MutableComponent ability = LocalizationUtilsKt.lang(pokemon.getAbility().getDisplayName().replace("cobblemon.", ""));
-        var ivs = getStatComponents(pokemon.getIvs(), "IVs", ChatFormatting.LIGHT_PURPLE);
-        var evs = getStatComponents(pokemon.getEvs(), "EVs", ChatFormatting.DARK_AQUA);
+        var ivs = getStatComponents(pokemon.getIvs(), getServerConfig().guiText_pokemonIVs.get(), ChatFormatting.LIGHT_PURPLE);
+        var evs = getStatComponents(pokemon.getEvs(), getServerConfig().guiText_pokemonEVs.get(), ChatFormatting.DARK_AQUA);
         var moves = getMovesComponents();
         String form = pokemon.getForm().getName();
 
@@ -194,22 +200,30 @@ public final class PokeUtil {
 
         pokeLore.add(Component.literal(pokeball).setStyle(Style.EMPTY.withItalic(true)
                 .withColor(ChatFormatting.DARK_GRAY)));
-        pokeLore.add(Component.literal("Level: ").withStyle(ChatFormatting.AQUA)
+        pokeLore.add(Component.literal(getServerConfig().guiText_pokemonLevel.get()).withStyle(ChatFormatting.AQUA)
+                .append(Component.literal(" "))
                 .append(Component.literal(level).withStyle(ChatFormatting.WHITE)));
-        pokeLore.add(Component.literal("Nickname: ").withStyle(ChatFormatting.DARK_GREEN)
+        pokeLore.add(Component.literal(getServerConfig().guiText_pokemonNickname.get()).withStyle(ChatFormatting.DARK_GREEN)
+                .append(Component.literal(" "))
                 .append(Component.literal(nickname).withStyle(ChatFormatting.WHITE)));
-        pokeLore.add(Component.literal("Held Item: ").withStyle(ChatFormatting.DARK_PURPLE)
+        pokeLore.add(Component.literal(getServerConfig().guiText_pokemonHeldItem.get()).withStyle(ChatFormatting.DARK_PURPLE)
+                .append(Component.literal(" "))
                 .append(Component.literal(heldItem).withStyle(ChatFormatting.WHITE)));
-        pokeLore.add(Component.literal("OT: ").withStyle(ChatFormatting.DARK_BLUE)
+        pokeLore.add(Component.literal(getServerConfig().guiText_pokemonOT.get()).withStyle(ChatFormatting.DARK_BLUE)
+                .append(Component.literal(" "))
                 .append(Component.literal(OT).withStyle(ChatFormatting.WHITE)));
-        pokeLore.add(Component.literal("Nature: ").withStyle(ChatFormatting.YELLOW)
+        pokeLore.add(Component.literal(getServerConfig().guiText_pokemonNature.get()).withStyle(ChatFormatting.YELLOW)
+                .append(Component.literal(" "))
                 .append(nature.withStyle(ChatFormatting.WHITE)));
-        pokeLore.add(Component.literal("Ability: ").withStyle(ChatFormatting.GOLD)
+        pokeLore.add(Component.literal(getServerConfig().guiText_pokemonAbility.get()).withStyle(ChatFormatting.GOLD)
+                .append(Component.literal(" "))
                 .append(ability.withStyle(ChatFormatting.WHITE)));
         pokeLore.addAll(ivs);
         pokeLore.addAll(evs);
         pokeLore.addAll(moves);
-        pokeLore.add(Component.literal("Form: ").withStyle(ChatFormatting.GOLD).append(Component.literal(form)));
+        pokeLore.add(Component.literal(getServerConfig().guiText_pokemonForm.get()).withStyle(ChatFormatting.GOLD)
+                .append(Component.literal(" "))
+                .append(Component.literal(form)));
 
         return buildComponentList(pokeLore);
     }
