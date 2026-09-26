@@ -71,8 +71,11 @@ public final class ConfirmationScreen {
                 .build();
 
         Button info = GooeyButton.builder()
-                .display(MenuUtilities.getInfoItem(direction == TransferDirection.DEPOSIT ?
-                        "Move Pokemon to bank?" : "Move Pokemon to PC?"))
+                .display(MenuUtilities.getInfoItem(
+                        direction == TransferDirection.DEPOSIT
+                                ? PokeBankConfig.SERVER_CONFIG.guiText_buttonInfoDeposit.get()
+                                : PokeBankConfig.SERVER_CONFIG.guiText_buttonInfoWithdraw.get())
+                )
                 .build();
 
         Button preview = GooeyButton.builder()
@@ -88,7 +91,7 @@ public final class ConfirmationScreen {
                 .build();
 
         return GooeyPage.builder()
-                .title(Component.literal("Confirm Transfer"))
+                .title(Component.literal(PokeBankConfig.SERVER_CONFIG.guiText_buttonConfirmTransfer.get()))
                 .template(template)
                 .build();
     }

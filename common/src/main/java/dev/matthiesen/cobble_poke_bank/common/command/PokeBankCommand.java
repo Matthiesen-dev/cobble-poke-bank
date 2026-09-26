@@ -19,7 +19,6 @@ import dev.matthiesen.matthiesen_core.common.utility.item.ItemDecoder;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -91,122 +90,97 @@ public final class PokeBankCommand implements CoreCommand {
         String value = StringArgumentType.getString(context, "value");
 
         if (!configType.equalsIgnoreCase("server")) {
-            context.getSource().sendSystemMessage(Component.literal("Invalid config type. Valid types are: server"));
+            context.getSource().sendSystemMessage(ChatHelper.buildChatMessage(
+                    PokeBankConfig.SERVER_CONFIG.messageCommandInvalidConfigType.get().replace("%s", "server")));
             return 0;
         }
 
-        if (configType.equals("server")) {
-            String[] availableConfigNames = {
-                    "bankMaxSlots", "bankNoFainted", "bankNoHeldItems",
-                    "bankNoLegendaries", "bankNoMythicals", "bankNoUltraBeasts",
-                    "heldItemOfficialTaggedOnly", "heldItemAutoStrip"
-            };
+        String[] availableConfigNames = {
+                "bankMaxSlots", "bankNoFainted", "bankNoHeldItems",
+                "bankNoLegendaries", "bankNoMythicals", "bankNoUltraBeasts",
+                "heldItemOfficialTaggedOnly", "heldItemAutoStrip"
+        };
 
-            boolean isValidConfigName = false;
-            for (String availableConfigName : availableConfigNames) {
-                if (availableConfigName.equalsIgnoreCase(configName)) {
-                    isValidConfigName = true;
-                    break;
-                }
+        String resolvedConfigName = null;
+        for (String availableConfigName : availableConfigNames) {
+            if (availableConfigName.equalsIgnoreCase(configName)) {
+                resolvedConfigName = availableConfigName;
+                break;
             }
-            if (!isValidConfigName) {
-                context.getSource().sendSystemMessage(Component.literal("Invalid config name. Valid names are: " + String.join(", ", availableConfigNames)));
+        }
+        if (resolvedConfigName == null) {
+            context.getSource().sendSystemMessage(ChatHelper.buildChatMessage(
+                    PokeBankConfig.SERVER_CONFIG.messageCommandInvalidConfigName.get()
+                            .replace("%s", String.join(", ", availableConfigNames))));
+            return 0;
+        }
+
+        var serverConfig = PokeBankConfig.SERVER_CONFIG;
+
+        if (resolvedConfigName.equals("bankMaxSlots")) {
+            int intValue;
+            try {
+                intValue = Integer.parseInt(value);
+            } catch (NumberFormatException exception) {
+                context.getSource().sendSystemMessage(ChatHelper.buildChatMessage(
+                        serverConfig.messageCommandInvalidIntegerValue.get().replace("%s", resolvedConfigName)));
+                return 0;
+            }
+            serverConfig.bankMaxSlots.set(intValue);
+            serverConfig.bankMaxSlots.save();
+        } else {
+            Boolean boolValue = parseBoolean(value);
+            if (boolValue == null) {
+                context.getSource().sendSystemMessage(ChatHelper.buildChatMessage(
+                        serverConfig.messageCommandInvalidBooleanValue.get().replace("%s", resolvedConfigName)));
                 return 0;
             }
 
-            switch (configName) {
-                case "bankMaxSlots" -> {
-                    int intValue;
-                    try {
-                        intValue = Integer.parseInt(value);
-                    } catch (NumberFormatException e) {
-                        context.getSource().sendSystemMessage(Component.literal("Invalid value for bankMaxSlots. Please provide a valid integer."));
-                        return 0;
-                    }
-                    PokeBankConfig.SERVER_CONFIG.bankMaxSlots.set(intValue);
-                    PokeBankConfig.SERVER_CONFIG.bankMaxSlots.save();
-                }
+            switch (resolvedConfigName) {
                 case "bankNoFainted" -> {
-                    boolean boolValue;
-                    try {
-                        boolValue = Boolean.parseBoolean(value);
-                    } catch (Exception e) {
-                        context.getSource().sendSystemMessage(Component.literal("Invalid value for bankNoFainted. Please provide a valid boolean (true/false)."));
-                        return 0;
-                    }
-                    PokeBankConfig.SERVER_CONFIG.bankNoFainted.set(boolValue);
-                    PokeBankConfig.SERVER_CONFIG.bankNoFainted.save();
+                    serverConfig.bankNoFainted.set(boolValue);
+                    serverConfig.bankNoFainted.save();
                 }
                 case "bankNoHeldItems" -> {
-                    boolean boolValue;
-                    try {
-                        boolValue = Boolean.parseBoolean(value);
-                    } catch (Exception e) {
-                        context.getSource().sendSystemMessage(Component.literal("Invalid value for bankNoHeldItems. Please provide a valid boolean (true/false)."));
-                        return 0;
-                    }
-                    PokeBankConfig.SERVER_CONFIG.bankNoHeldItems.set(boolValue);
-                    PokeBankConfig.SERVER_CONFIG.bankNoHeldItems.save();
+                    serverConfig.bankNoHeldItems.set(boolValue);
+                    serverConfig.bankNoHeldItems.save();
                 }
                 case "bankNoLegendaries" -> {
-                    boolean boolValue;
-                    try {
-                        boolValue = Boolean.parseBoolean(value);
-                    } catch (Exception e) {
-                        context.getSource().sendSystemMessage(Component.literal("Invalid value for bankNoLegendaries. Please provide a valid boolean (true/false)."));
-                        return 0;
-                    }
-                    PokeBankConfig.SERVER_CONFIG.bankNoLegendaries.set(boolValue);
-                    PokeBankConfig.SERVER_CONFIG.bankNoLegendaries.save();
+                    serverConfig.bankNoLegendaries.set(boolValue);
+                    serverConfig.bankNoLegendaries.save();
                 }
                 case "bankNoMythicals" -> {
-                    boolean boolValue;
-                    try {
-                        boolValue = Boolean.parseBoolean(value);
-                    } catch (Exception e) {
-                        context.getSource().sendSystemMessage(Component.literal("Invalid value for bankNoMythicals. Please provide a valid boolean (true/false)."));
-                        return 0;
-                    }
-                    PokeBankConfig.SERVER_CONFIG.bankNoMythicals.set(boolValue);
-                    PokeBankConfig.SERVER_CONFIG.bankNoMythicals.save();
+                    serverConfig.bankNoMythicals.set(boolValue);
+                    serverConfig.bankNoMythicals.save();
                 }
                 case "bankNoUltraBeasts" -> {
-                    boolean boolValue;
-                    try {
-                        boolValue = Boolean.parseBoolean(value);
-                    } catch (Exception e) {
-                        context.getSource().sendSystemMessage(Component.literal("Invalid value for bankNoUltraBeasts. Please provide a valid boolean (true/false)."));
-                        return 0;
-                    }
-                    PokeBankConfig.SERVER_CONFIG.bankNoUltraBeasts.set(boolValue);
-                    PokeBankConfig.SERVER_CONFIG.bankNoUltraBeasts.save();
+                    serverConfig.bankNoUltraBeasts.set(boolValue);
+                    serverConfig.bankNoUltraBeasts.save();
                 }
                 case "heldItemOfficialTaggedOnly" -> {
-                    boolean boolValue;
-                    try {
-                        boolValue = Boolean.parseBoolean(value);
-                    } catch (Exception e) {
-                        context.getSource().sendSystemMessage(Component.literal("Invalid value for heldItemOfficialTaggedOnly. Please provide a valid boolean (true/false)."));
-                        return 0;
-                    }
-                    PokeBankConfig.SERVER_CONFIG.heldItemOfficialTaggedOnly.set(boolValue);
-                    PokeBankConfig.SERVER_CONFIG.heldItemOfficialTaggedOnly.save();
+                    serverConfig.heldItemOfficialTaggedOnly.set(boolValue);
+                    serverConfig.heldItemOfficialTaggedOnly.save();
                 }
                 case "heldItemAutoStrip" -> {
-                    boolean boolValue;
-                    try {
-                        boolValue = Boolean.parseBoolean(value);
-                    } catch (Exception e) {
-                        context.getSource().sendSystemMessage(Component.literal("Invalid value for heldItemAutoStrip. Please provide a valid boolean (true/false)."));
-                        return 0;
-                    }
-                    PokeBankConfig.SERVER_CONFIG.heldItemAutoStrip.set(boolValue);
-                    PokeBankConfig.SERVER_CONFIG.heldItemAutoStrip.save();
+                    serverConfig.heldItemAutoStrip.set(boolValue);
+                    serverConfig.heldItemAutoStrip.save();
                 }
             }
-            return 1;
         }
-        return 0;
+
+        context.getSource().sendSystemMessage(ChatHelper.buildChatMessage(
+                serverConfig.messageCommandConfigUpdated.get().replace("%s", resolvedConfigName)));
+        return 1;
+    }
+
+    private static Boolean parseBoolean(String value) {
+        if (value.equalsIgnoreCase("true")) {
+            return Boolean.TRUE;
+        }
+        if (value.equalsIgnoreCase("false")) {
+            return Boolean.FALSE;
+        }
+        return null;
     }
 
     private int action(CommandContext<CommandSourceStack> context) {
@@ -238,22 +212,25 @@ public final class PokeBankCommand implements CoreCommand {
         var bankConfig = PokeBankConfig.SERVER_CONFIG;
         var databaseConfig = PokeBankConfig.DATABASE_CONFIG;
 
-        ChatTableBuilder tableBuilder = new ChatTableBuilder("Cobble Poke Bank Status");
+        String enabled = bankConfig.statusValueEnabled.get();
+        String disabled = bankConfig.statusValueDisabled.get();
 
-        tableBuilder.addSection("Database");
-        tableBuilder.addRow("Database Type", databaseConfig.useMySQL.getAsBoolean() ? "MySQL" : "SQLite");
-        tableBuilder.addRow("Database Status", CobblePokeBankCommon.INSTANCE.isDatabaseAvailable() ? "§aConnected" : "§cOffline");
+        ChatTableBuilder tableBuilder = new ChatTableBuilder(bankConfig.statusTitle.get());
 
-        tableBuilder.addSection("Bank Configuration");
-        tableBuilder.addRow("Bank Max Slots", bankConfig.bankMaxSlots.getAsInt() <= 0 ? "Unlimited" : String.valueOf(bankConfig.bankMaxSlots.getAsInt()));
-        tableBuilder.addRow("No Fainted", bankConfig.bankNoFainted.getAsBoolean() ? "§aEnabled" : "§cDisabled");
-        tableBuilder.addRow("No Held Items", bankConfig.bankNoHeldItems.getAsBoolean() ? "§aEnabled" : "§cDisabled");
-        tableBuilder.addRow("No Legendaries", bankConfig.bankNoLegendaries.getAsBoolean() ? "§aEnabled" : "§cDisabled");
-        tableBuilder.addRow("No Mythicals", bankConfig.bankNoMythicals.getAsBoolean() ? "§aEnabled" : "§cDisabled");
-        tableBuilder.addRow("No Ultra Beasts", bankConfig.bankNoUltraBeasts.getAsBoolean() ? "§aEnabled" : "§cDisabled");
-        tableBuilder.addRow("Pokemon Blacklist Entries", String.valueOf(bankConfig.bankPokemonBlacklist.get().size()));
-        tableBuilder.addRow("Official Held Items Only", bankConfig.heldItemOfficialTaggedOnly.getAsBoolean() ? "§aEnabled" : "§cDisabled");
-        tableBuilder.addRow("Held Item Blacklist Entries", String.valueOf(bankConfig.heldItemBlacklist.get().size()));
+        tableBuilder.addSection(bankConfig.statusSectionDatabase.get());
+        tableBuilder.addRow(bankConfig.statusLabelDatabaseType.get(), databaseConfig.useMySQL.getAsBoolean() ? bankConfig.statusValueMySQL.get() : bankConfig.statusValueSQLite.get());
+        tableBuilder.addRow(bankConfig.statusLabelDatabaseStatus.get(), CobblePokeBankCommon.INSTANCE.isDatabaseAvailable() ? bankConfig.statusValueConnected.get() : bankConfig.statusValueOffline.get());
+
+        tableBuilder.addSection(bankConfig.statusSectionBankConfiguration.get());
+        tableBuilder.addRow(bankConfig.statusLabelBankMaxSlots.get(), bankConfig.bankMaxSlots.getAsInt() <= 0 ? bankConfig.statusValueUnlimited.get() : String.valueOf(bankConfig.bankMaxSlots.getAsInt()));
+        tableBuilder.addRow(bankConfig.statusLabelNoFainted.get(), bankConfig.bankNoFainted.getAsBoolean() ? enabled : disabled);
+        tableBuilder.addRow(bankConfig.statusLabelNoHeldItems.get(), bankConfig.bankNoHeldItems.getAsBoolean() ? enabled : disabled);
+        tableBuilder.addRow(bankConfig.statusLabelNoLegendaries.get(), bankConfig.bankNoLegendaries.getAsBoolean() ? enabled : disabled);
+        tableBuilder.addRow(bankConfig.statusLabelNoMythicals.get(), bankConfig.bankNoMythicals.getAsBoolean() ? enabled : disabled);
+        tableBuilder.addRow(bankConfig.statusLabelNoUltraBeasts.get(), bankConfig.bankNoUltraBeasts.getAsBoolean() ? enabled : disabled);
+        tableBuilder.addRow(bankConfig.statusLabelPokemonBlacklistEntries.get(), String.valueOf(bankConfig.bankPokemonBlacklist.get().size()));
+        tableBuilder.addRow(bankConfig.statusLabelOfficialHeldItemsOnly.get(), bankConfig.heldItemOfficialTaggedOnly.getAsBoolean() ? enabled : disabled);
+        tableBuilder.addRow(bankConfig.statusLabelHeldItemBlacklistEntries.get(), String.valueOf(bankConfig.heldItemBlacklist.get().size()));
 
         source.sendSystemMessage(tableBuilder.build());
         return 1;
@@ -263,12 +240,12 @@ public final class PokeBankCommand implements CoreCommand {
         CommandSourceStack source = context.getSource();
         var bankConfig = PokeBankConfig.SERVER_CONFIG;
 
-        ChatTableBuilder tableBuilder = new ChatTableBuilder("Cobble Poke Bank Pokemon Blacklist");
+        ChatTableBuilder tableBuilder = new ChatTableBuilder(bankConfig.statusPokemonBlacklistTitle.get());
 
         if (bankConfig.bankPokemonBlacklist.get().isEmpty()) {
             source.sendSystemMessage(ChatHelper.buildChatMessage(PokeBankConfig.SERVER_CONFIG.messageCommandNoBlacklistedPokemon.get()));
         } else {
-            tableBuilder.addSection("Blacklisted Pokemon");
+            tableBuilder.addSection(bankConfig.statusSectionBlacklistedPokemon.get());
             for (String pokemon : bankConfig.bankPokemonBlacklist.get()) {
                 tableBuilder.addRow(pokemon, pokemon);
             }
@@ -282,12 +259,12 @@ public final class PokeBankCommand implements CoreCommand {
         CommandSourceStack source = context.getSource();
         var bankConfig = PokeBankConfig.SERVER_CONFIG;
 
-        ChatTableBuilder tableBuilder = new ChatTableBuilder("Cobble Poke Bank Held Item Blacklist");
+        ChatTableBuilder tableBuilder = new ChatTableBuilder(bankConfig.statusHeldItemBlacklistTitle.get());
 
         if (bankConfig.heldItemBlacklist.get().isEmpty()) {
             source.sendSystemMessage(ChatHelper.buildChatMessage(PokeBankConfig.SERVER_CONFIG.messageCommandNoBlacklistedItems.get()));
         } else {
-            tableBuilder.addSection("Blacklisted Held Items");
+            tableBuilder.addSection(bankConfig.statusSectionBlacklistedHeldItems.get());
             for (String item : bankConfig.heldItemBlacklist.get()) {
                 Item decodedItem = ItemDecoder.stringToItem(item, Items.BARRIER);
                 tableBuilder.addRow(item, decodedItem.getDefaultInstance().getDisplayName().getString());

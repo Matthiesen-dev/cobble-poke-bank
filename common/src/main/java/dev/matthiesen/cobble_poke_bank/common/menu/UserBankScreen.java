@@ -37,7 +37,10 @@ public final class UserBankScreen extends AbstractUserScreen {
 
     @Override
     protected Component getPageTitle() {
-        return Component.literal(getPlayer().getName().getString() + "'s Bank");
+        String titleTemplate = PokeBankConfig.SERVER_CONFIG.guiText_userBankScreenTitle.get();
+        String playerName = getPlayer().getName().getString();
+        String title = titleTemplate.replace("{player}", playerName);
+        return Component.literal(title);
     }
 
     private Button buildBankEntryButton(PokemonBankRepository.PokemonBankEntry entry) {
