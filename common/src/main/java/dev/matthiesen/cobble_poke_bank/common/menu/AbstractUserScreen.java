@@ -1,16 +1,12 @@
 package dev.matthiesen.cobble_poke_bank.common.menu;
 
-import ca.landonjw.gooeylibs2.api.UIManager;
-import ca.landonjw.gooeylibs2.api.button.Button;
-import ca.landonjw.gooeylibs2.api.button.GooeyButton;
-import ca.landonjw.gooeylibs2.api.button.PlaceholderButton;
-import ca.landonjw.gooeylibs2.api.button.linked.LinkType;
-import ca.landonjw.gooeylibs2.api.button.linked.LinkedPageButton;
-import ca.landonjw.gooeylibs2.api.helpers.PaginationHelper;
-import ca.landonjw.gooeylibs2.api.page.LinkedPage;
-import ca.landonjw.gooeylibs2.api.page.Page;
-import ca.landonjw.gooeylibs2.api.template.types.ChestTemplate;
 import dev.matthiesen.cobble_poke_bank.common.utility.MenuUtilities;
+import dev.matthiesen.matthiesen_core.common.api.server_menu.ServerUIManager;
+import dev.matthiesen.matthiesen_core.common.api.server_menu.button.*;
+import dev.matthiesen.matthiesen_core.common.api.server_menu.button.linked.*;
+import dev.matthiesen.matthiesen_core.common.api.server_menu.helpers.PaginationHelper;
+import dev.matthiesen.matthiesen_core.common.api.server_menu.page.*;
+import dev.matthiesen.matthiesen_core.common.api.server_menu.template.types.ChestTemplate;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -58,11 +54,11 @@ public abstract class AbstractUserScreen {
      */
     public Page getPage() {
         PlaceholderButton placeholder = new PlaceholderButton();
-        Button frame = GooeyButton.builder().display(MenuUtilities.getFrameItem()).build();
+        Button frame = ServerButton.builder().display(MenuUtilities.getFrameItem()).build();
 
-        Button back = GooeyButton.builder()
+        Button back = ServerButton.builder()
                 .display(MenuUtilities.getBackItem())
-                .onClick(action -> UIManager.openUIForcefully(player, new MainMenuScreen(player).getPage()))
+                .onClick(action -> ServerUIManager.openUIForcefully(player, new MainMenuScreen(player).getPage()))
                 .build();
 
         LinkedPageButton previous = LinkedPageButton.builder()

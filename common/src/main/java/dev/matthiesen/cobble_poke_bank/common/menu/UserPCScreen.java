@@ -1,12 +1,11 @@
 package dev.matthiesen.cobble_poke_bank.common.menu;
 
-import ca.landonjw.gooeylibs2.api.UIManager;
-import ca.landonjw.gooeylibs2.api.button.Button;
-import ca.landonjw.gooeylibs2.api.button.GooeyButton;
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import dev.matthiesen.cobble_poke_bank.common.config.PokeBankConfig;
 import dev.matthiesen.cobble_poke_bank.common.utility.PokeUtil;
+import dev.matthiesen.matthiesen_core.common.api.server_menu.ServerUIManager;
+import dev.matthiesen.matthiesen_core.common.api.server_menu.button.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -25,9 +24,9 @@ public final class UserPCScreen extends AbstractUserScreen {
         var pc = Cobblemon.INSTANCE.getStorage().getPC(getPlayer());
         for (Pokemon pokemon : pc) {
             if (pokemon == null) continue;
-            Button button = GooeyButton.builder()
+            Button button = ServerButton.builder()
                     .display(new PokeUtil(pokemon).toItem())
-                    .onClick(action -> UIManager.openUIForcefully(
+                    .onClick(action -> ServerUIManager.openUIForcefully(
                             getPlayer(),
                             ConfirmationScreen.deposit(getPlayer(), pokemon.getUuid()).getPage()
                     ))

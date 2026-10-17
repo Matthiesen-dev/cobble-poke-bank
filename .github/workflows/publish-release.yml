@@ -11,7 +11,6 @@ on:
 # The dependencies below correspond to:
 # - Cobblemon (MdwFAVRL)
 # - Matthiesen Core (sqEZOmQo)
-# - GooeyLibs (KzjvlKEN)
 # - SQLite JDBC (bTTf2DEw)
 # - MySQL JDBC (2UdFEObs) - Optional
 ## Fabric Only:
@@ -36,7 +35,6 @@ jobs:
         [
           {"project_id":"MdwFAVRL","dependency_type":"required"},
           {"project_id":"sqEZOmQo","dependency_type":"required"},
-          {"project_id":"KzjvlKEN","dependency_type":"required"},
           {"project_id":"bTTf2DEw","dependency_type":"required"},
           {"project_id":"2UdFEObs","dependency_type":"optional"}
         ]

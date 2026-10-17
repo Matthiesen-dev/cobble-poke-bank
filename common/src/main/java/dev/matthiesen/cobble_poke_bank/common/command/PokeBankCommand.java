@@ -1,6 +1,5 @@
 package dev.matthiesen.cobble_poke_bank.common.command;
 
-import ca.landonjw.gooeylibs2.api.UIManager;
 import com.cobblemon.mod.common.util.PlayerExtensionsKt;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -13,6 +12,7 @@ import dev.matthiesen.cobble_poke_bank.common.utility.ChatHelper;
 import dev.matthiesen.matthiesen_core.common.api.command.CoreCommand;
 import dev.matthiesen.matthiesen_core.common.api.events.server.ServerEvent;
 import dev.matthiesen.matthiesen_core.common.api.permissions.Permission;
+import dev.matthiesen.matthiesen_core.common.api.server_menu.ServerUIManager;
 import dev.matthiesen.matthiesen_core.common.utility.chat.ChatTableBuilder;
 import dev.matthiesen.matthiesen_core.common.utility.commands.CommandBuilder;
 import dev.matthiesen.matthiesen_core.common.utility.item.ItemDecoder;
@@ -203,7 +203,7 @@ public final class PokeBankCommand implements CoreCommand {
             return 0;
         }
 
-        UIManager.openUIForcefully(player, new MainMenuScreen(player).getPage());
+        ServerUIManager.openUIForcefully(player, new MainMenuScreen(player).getPage());
         return 1;
     }
 

@@ -1,10 +1,10 @@
 package dev.matthiesen.cobble_poke_bank.common.menu;
 
-import ca.landonjw.gooeylibs2.api.UIManager;
 import dev.matthiesen.cobble_poke_bank.common.CobblePokeBankCommon;
 import dev.matthiesen.cobble_poke_bank.common.config.PokeBankConfig;
 import dev.matthiesen.cobble_poke_bank.common.database.service.DatabaseServices;
 import dev.matthiesen.cobble_poke_bank.common.utility.ChatHelper;
+import dev.matthiesen.matthiesen_core.common.api.server_menu.ServerUIManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -20,7 +20,7 @@ public final class BankMenuNavigator {
                         player.displayClientMessage(ChatHelper.buildChatMessage(PokeBankConfig.SERVER_CONFIG.messageDatabaseFailedToLoadData.get()), false);
                         return;
                     }
-                    UIManager.openUIForcefully(player, new UserBankScreen(player, entries).getPage());
+                    ServerUIManager.openUIForcefully(player, new UserBankScreen(player, entries).getPage());
                 }));
     }
 
