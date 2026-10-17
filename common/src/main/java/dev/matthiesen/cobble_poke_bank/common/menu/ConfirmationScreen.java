@@ -1,11 +1,5 @@
 package dev.matthiesen.cobble_poke_bank.common.menu;
 
-import ca.landonjw.gooeylibs2.api.UIManager;
-import ca.landonjw.gooeylibs2.api.button.Button;
-import ca.landonjw.gooeylibs2.api.button.GooeyButton;
-import ca.landonjw.gooeylibs2.api.page.GooeyPage;
-import ca.landonjw.gooeylibs2.api.page.Page;
-import ca.landonjw.gooeylibs2.api.template.types.ChestTemplate;
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.google.gson.JsonObject;
@@ -14,6 +8,10 @@ import dev.matthiesen.cobble_poke_bank.common.config.PokeBankConfig;
 import dev.matthiesen.cobble_poke_bank.common.database.repository.PokemonBankRepository;
 import dev.matthiesen.cobble_poke_bank.common.database.service.DatabaseServices;
 import dev.matthiesen.cobble_poke_bank.common.utility.*;
+import dev.matthiesen.matthiesen_core.common.api.server_menu.ServerUIManager;
+import dev.matthiesen.matthiesen_core.common.api.server_menu.button.*;
+import dev.matthiesen.matthiesen_core.common.api.server_menu.page.*;
+import dev.matthiesen.matthiesen_core.common.api.server_menu.template.types.ChestTemplate;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -56,21 +54,21 @@ public final class ConfirmationScreen {
     }
 
     public Page getPage() {
-        Button frame = GooeyButton.builder()
+        Button frame = ServerButton.builder()
                 .display(MenuUtilities.getFrameItem())
                 .build();
 
-        Button confirm = GooeyButton.builder()
+        Button confirm = ServerButton.builder()
                 .display(MenuUtilities.getConfirmItem())
                 .onClick(action -> handleConfirm())
                 .build();
 
-        Button cancel = GooeyButton.builder()
+        Button cancel = ServerButton.builder()
                 .display(MenuUtilities.getCancelItem())
                 .onClick(action -> openBackPage())
                 .build();
 
-        Button info = GooeyButton.builder()
+        Button info = ServerButton.builder()
                 .display(MenuUtilities.getInfoItem(
                         direction == TransferDirection.DEPOSIT
                                 ? PokeBankConfig.SERVER_CONFIG.guiText_buttonInfoDeposit.get()
@@ -78,7 +76,7 @@ public final class ConfirmationScreen {
                 )
                 .build();
 
-        Button preview = GooeyButton.builder()
+        Button preview = ServerButton.builder()
                 .display(resolvePreviewItem())
                 .build();
 
@@ -90,7 +88,7 @@ public final class ConfirmationScreen {
                 .set(4, info)
                 .build();
 
-        return GooeyPage.builder()
+        return ServerPage.builder()
                 .title(Component.literal(PokeBankConfig.SERVER_CONFIG.guiText_buttonConfirmTransfer.get()))
                 .template(template)
                 .build();
@@ -160,7 +158,7 @@ public final class ConfirmationScreen {
             }
 
             player.displayClientMessage(ChatHelper.buildChatMessage(PokeBankConfig.SERVER_CONFIG.messageDepositPokemonDeposited.get()), false);
-            UIManager.openUIForcefully(player, new UserPCScreen(player).getPage());
+            ServerUIManager.openUIForcefully(player, new UserPCScreen(player).getPage());
         }));
     }
 
@@ -252,7 +250,7 @@ public final class ConfirmationScreen {
 
     private void openBackPage() {
         if (direction == TransferDirection.DEPOSIT) {
-            UIManager.openUIForcefully(player, new UserPCScreen(player).getPage());
+            ServerUIManager.openUIForcefully(player, new UserPCScreen(player).getPage());
             return;
         }
         BankMenuNavigator.openBankMenuAsync(player);

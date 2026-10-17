@@ -1,14 +1,11 @@
 package dev.matthiesen.cobble_poke_bank.common.menu;
 
-import ca.landonjw.gooeylibs2.api.UIManager;
-import ca.landonjw.gooeylibs2.api.button.Button;
-import ca.landonjw.gooeylibs2.api.button.GooeyButton;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import dev.matthiesen.cobble_poke_bank.common.config.PokeBankConfig;
 import dev.matthiesen.cobble_poke_bank.common.database.repository.PokemonBankRepository;
-import dev.matthiesen.cobble_poke_bank.common.utility.ChatHelper;
-import dev.matthiesen.cobble_poke_bank.common.utility.MenuUtilities;
-import dev.matthiesen.cobble_poke_bank.common.utility.PokeUtil;
+import dev.matthiesen.cobble_poke_bank.common.utility.*;
+import dev.matthiesen.matthiesen_core.common.api.server_menu.ServerUIManager;
+import dev.matthiesen.matthiesen_core.common.api.server_menu.button.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -48,7 +45,7 @@ public final class UserBankScreen extends AbstractUserScreen {
         try {
             pokemon = PokeUtil.fromJson(entry.pokemon_json_data(), getPlayer().level().registryAccess()).getPokemon();
         } catch (Exception exception) {
-            return GooeyButton.builder()
+            return ServerButton.builder()
                     .display(MenuUtilities.getInvalidEntryItem())
                     .onClick(action -> action.getPlayer().displayClientMessage(
                             ChatHelper.buildChatMessage(PokeBankConfig.SERVER_CONFIG.messageDatabaseInvalidPokemonData.get()),
@@ -57,9 +54,9 @@ public final class UserBankScreen extends AbstractUserScreen {
                     .build();
         }
 
-        return GooeyButton.builder()
+        return ServerButton.builder()
                 .display(new PokeUtil(pokemon).toItem())
-                .onClick(action -> UIManager.openUIForcefully(
+                .onClick(action -> ServerUIManager.openUIForcefully(
                         getPlayer(),
                         ConfirmationScreen.withdraw(getPlayer(), entry).getPage()
                 ))
