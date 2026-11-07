@@ -1,10 +1,10 @@
 package dev.matthiesen.cobble_poke_bank.common;
 
+import dev.faststats.Token;
 import dev.matthiesen.cobble_poke_bank.common.command.PokeBankCommand;
 import dev.matthiesen.cobble_poke_bank.common.config.PokeBankConfig;
 import dev.matthiesen.cobble_poke_bank.common.database.service.DatabaseServices;
 import dev.matthiesen.cobble_poke_bank.common.registry.PermissionRegistry;
-import dev.matthiesen.libs.faststats.Token;
 import dev.matthiesen.matthiesen_core.common.AbstractCommonMod;
 import dev.matthiesen.matthiesen_core.common.api.database.config.DatabaseConfig;
 import dev.matthiesen.matthiesen_core.common.api.events.PlatformEvents;
@@ -33,15 +33,11 @@ public final class CobblePokeBankCommon extends AbstractCommonMod {
         return METRICS_TOKEN;
     }
 
-    public String configPath(String name) {
-        return MOD_ID + "/" + name + ".toml";
-    }
-
     public void initialize() {
         super.initialize();
-        registerModConfig(MOD_ID, ModConfigType.STARTUP, PokeBankConfig.PERMISSIONS_START_SPEC, configPath("permissions"));
-        registerModConfig(MOD_ID, ModConfigType.STARTUP, PokeBankConfig.DATABASE_SPEC, configPath("database"));
-        registerModConfig(MOD_ID, ModConfigType.SERVER, PokeBankConfig.SERVER_SPEC, configPath("server"));
+        registerModConfig(MOD_ID, ModConfigType.STARTUP, PokeBankConfig.PERMISSIONS_START_SPEC, modConfigPath("permissions"));
+        registerModConfig(MOD_ID, ModConfigType.STARTUP, PokeBankConfig.DATABASE_SPEC, modConfigPath("database"));
+        registerModConfig(MOD_ID, ModConfigType.SERVER, PokeBankConfig.SERVER_SPEC, modConfigPath("server"));
 
         PermissionRegistry.init();
         getCommandsRegistryManager().registerCommand(PokeBankCommand.CMD);
